@@ -1102,8 +1102,17 @@ canvas {
 
   <button
     class="button-editor"
+    onclick="openImportModal()"
+    style="margin-top:12px; width:100%;"
+  >
+    <i class="fa-solid fa-file-import"></i>
+    Importar HTML
+  </button>
+
+  <button
+    class="button-editor"
     onclick="resetState()"
-    style="margin-top:12px; width:100%; background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.25); color:#fca5a5;"
+    style="margin-top:8px; width:100%; background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.25); color:#fca5a5;"
   >
     <i class="fa-solid fa-trash-can"></i>
     Nueva nota / Limpiar
@@ -1133,6 +1142,38 @@ canvas {
 </div>
 
 
+
+<!-- MODAL: Importar HTML -->
+<div id="importModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fa-solid fa-file-import"></i> Importar HTML exportado</h2>
+      <button class="modal-close" onclick="closeImportModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-description">Pegá el HTML completo exportado por esta app. Se van a cargar todos los campos editables automáticamente.</p>
+      <textarea
+        id="importInput"
+        class="post-input"
+        placeholder="Pegá aquí el HTML del post exportado..."
+        rows="10"
+        autocomplete="off"
+      ></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="button-editor" onclick="closeImportModal()">
+        <i class="fa-solid fa-xmark"></i>
+        Cancelar
+      </button>
+      <button class="button-editor" onclick="importFromHtml()">
+        <i class="fa-solid fa-file-import"></i>
+        Importar
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: Post to Medidas Converter -->
 <div id="postToMedidasModal" class="modal">
@@ -2448,15 +2489,18 @@ function processPostToMedidas() {
 document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('postToMedidasModal');
   modal?.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closePostToMedidasModal();
-    }
+    if (e.target === modal) closePostToMedidasModal();
   });
-  
-  // Cerrar con ESC
+
+  const importModal = document.getElementById('importModal');
+  importModal?.addEventListener('click', (e) => {
+    if (e.target === importModal) closeImportModal();
+  });
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closePostToMedidasModal();
+      closeImportModal();
     }
   });
   
@@ -2624,6 +2668,164 @@ function exportMedidas() {
   navigator.clipboard.writeText(html)
     .then(() => showFeedback("Medidas copiadas al portapapeles!", 'success', 2500))
     .catch(() => showFeedback("No se pudo copiar las medidas", 'error', 2500));
+}
+
+/* ===============================
+   IMPORTAR HTML EXPORTADO
+================================= */
+function openImportModal() {
+  document.getElementById('importModal').classList.add('active');
+  document.getElementById('importInput').value = '';
+  document.getElementById('importInput').focus();
+}
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('active');
+}
+
+function parseSpanishDate(str) {
+  const months = {
+    'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,
+    'julio':7,'agosto':8,'septiembre':9,'octubre':10,'noviembre':11,'diciembre':12
+  };
+  const m = str.match(/(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/i);
+  if (!m) return '';
+  const d = m[1].padStart(2,'0');
+  const mo = String(months[m[2].toLowerCase()] || 1).padStart(2,'0');
+  return `${m[3]}-${mo}-${d}`;
+}
+
+function htmlToMarkdown(html) {
+  return html
+    .replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+    .replace(/<a\s+href="([^"]+)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+}
+
+function importFromHtml() {
+  const html = document.getElementById('importInput').value.trim();
+  if (!html) { showFeedback('Pegá el HTML del post primero', 'error', 2500); return; }
+
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+
+  // Categoría
+  const catEl = tmp.querySelector('.article-category');
+  if (catEl) document.getElementById('article-texto').value = catEl.textContent.trim();
+
+  // Fecha (parsear "29 de abril de 2026" → "2026-04-29")
+  const dateSpan = tmp.querySelector('.article-date span');
+  if (dateSpan) {
+    const iso = parseSpanishDate(dateSpan.textContent.trim());
+    if (iso) document.getElementById('article-fecha').value = iso;
+  }
+
+  // Título y subtítulo: hijos directos de .article-container para no confundir con bloques internos
+  const container = tmp.querySelector('.article-container') || tmp;
+  const titleEl = container.querySelector(':scope > p.section-header-h1');
+  if (titleEl) document.getElementById('article-titulo').value = titleEl.textContent.trim();
+
+  const subtitleEl = container.querySelector(':scope > p.section-header-h2');
+  document.getElementById('article-subtitulo').value = subtitleEl ? subtitleEl.textContent.trim() : '';
+
+  // Imagen de portada
+  const featuredImg = tmp.querySelector('.featured-image img');
+  document.getElementById('article-imagen').value = featuredImg ? (featuredImg.getAttribute('src') || '') : '';
+
+  // Bloques de contenido
+  blocks = [];
+  const contentEl = tmp.querySelector('.article-content');
+  if (contentEl) {
+    Array.from(contentEl.children).forEach(child => {
+      if (child.classList.contains('download-section')) return; // la manejamos aparte
+
+      const tag = child.tagName.toUpperCase();
+      const cls = child.className || '';
+
+      if (tag === 'P') {
+        if (cls.includes('section-header-h1')) {
+          blocks.push({ type:'heading', subtype:'h1', content: child.textContent.trim() });
+        } else if (cls.includes('section-header-h2')) {
+          blocks.push({ type:'heading', subtype:'h2', content: child.textContent.trim() });
+        } else if (cls.includes('section-header-h3')) {
+          blocks.push({ type:'heading', subtype:'h3', content: child.textContent.trim() });
+        } else {
+          // párrafo normal (dropcap o sin clase)
+          blocks.push({ type:'text', subtype:'p', content: htmlToMarkdown(child.innerHTML) });
+        }
+      } else if (cls.includes('article-quote')) {
+        blocks.push({ type:'quote', subtype:'p', content: htmlToMarkdown(child.innerHTML) });
+      } else if (cls.includes('article-image')) {
+        const imgEl = child.querySelector('img');
+        blocks.push({ type:'image', subtype:'', content: imgEl ? (imgEl.getAttribute('src') || '') : '' });
+      } else if (tag === 'HR') {
+        blocks.push({ type:'hr', subtype:'', content:'' });
+      } else if (cls.includes('download-button-wrapper')) {
+        const btnEl  = child.querySelector('.button');
+        const textEl = child.querySelector('.button__text');
+        const iconEl = child.querySelector('.button__icon');
+        const oc     = btnEl ? (btnEl.getAttribute('onclick') || '') : '';
+        const lm     = oc.match(/window\.open\(['"]([^'"]+)/);
+        blocks.push({
+          type:'button', subtype:'',
+          content: {
+            text: textEl ? textEl.textContent.trim() : 'DESCARGAR',
+            link: lm ? lm[1] : '#',
+            icon: iconEl ? iconEl.innerHTML.trim() : '<i class="fa-solid fa-file-pdf"></i>'
+          }
+        });
+      } else if (tag === 'UL') {
+        const items = Array.from(child.querySelectorAll('li')).map(li => li.textContent.trim());
+        blocks.push({ type:'ul', subtype:'ul', content: items.join('\n') });
+      } else if (tag === 'OL') {
+        const items = Array.from(child.querySelectorAll('li')).map(li => li.textContent.trim());
+        blocks.push({ type:'ol', subtype:'ol', content: items.join('\n') });
+      }
+    });
+  }
+
+  // Zona de descargas
+  downloadItems = [];
+  const dlSection = tmp.querySelector('.download-section');
+  if (dlSection) {
+    const dlTitleEl = dlSection.querySelector('.section-header-h3');
+    if (dlTitleEl) {
+      const clone = dlTitleEl.cloneNode(true);
+      clone.querySelectorAll('i').forEach(i => i.remove());
+      downloadTitle = clone.textContent.trim();
+      document.getElementById('download-title').value = downloadTitle;
+    }
+    const dlDescEl = dlSection.querySelector('.download-description');
+    if (dlDescEl) {
+      downloadMainDescription = dlDescEl.textContent.trim();
+      document.getElementById('download-description').value = downloadMainDescription;
+    }
+    dlSection.querySelectorAll('.download-item-desc').forEach(descEl => {
+      let next = descEl.nextElementSibling;
+      while (next && !next.classList.contains('download-button-wrapper')) next = next.nextElementSibling;
+      let text = 'DESCARGAR', link = '#', icon = '<i class="fa-solid fa-file-pdf"></i>';
+      if (next) {
+        const btnEl  = next.querySelector('.button');
+        const textEl = next.querySelector('.button__text');
+        const iconEl = next.querySelector('.button__icon');
+        const oc     = btnEl ? (btnEl.getAttribute('onclick') || '') : '';
+        const lm     = oc.match(/window\.open\(['"]([^'"]+)/);
+        text = textEl ? textEl.textContent.trim() : 'DESCARGAR';
+        link = lm ? lm[1] : '#';
+        icon = iconEl ? iconEl.innerHTML.trim() : icon;
+      }
+      downloadItems.push({ text, link, desc: descEl.textContent.trim(), icon });
+    });
+  }
+
+  renderBlocks();
+  renderDownloadItems();
+  updatePreview();
+  closeImportModal();
+  showFeedback('Post importado. ¡A editar!', 'success', 2500);
 }
 
 /* ===============================

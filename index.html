@@ -1433,8 +1433,6 @@ function renderBlockInput(block, index) {
 
   if(block.type === 'button') {
     return `
-      <hr style="margin:25px;border:none;height:1px;background:linear-gradient(to right,transparent,#2E3863,transparent);">
-
       <label>Texto del botón:</label>
       <input type="text" 
             placeholder="Texto del botón"
@@ -1458,36 +1456,44 @@ function renderBlockInput(block, index) {
 
         <button onclick="window.open('https://fontawesome.com/search', '_blank')"
                 style="width:38px; height:38px; display:flex; align-items:center; justify-content:center;
-                      border:1px solid #ccc; background:#f7f7f7; border-radius:6px; cursor:pointer;">
+                      border:1px solid var(--card-border); background:var(--accent); color:#fff; border-radius:6px; cursor:pointer; flex-shrink:0;">
           <i class="fa-solid fa-arrow-up-right-from-square"></i>
         </button>
       </div>
     `;
   }
 
-
-
   return "";
 }
 
-function changeBlockType(index, type){
+function changeBlockType(index, type) {
+  const prev = blocks[index];
+
+  // Tipos que comparten contenido de texto
+  const textGroup = ['text', 'heading', 'quote', 'ul', 'ol'];
+  const prevInGroup = textGroup.includes(prev.type);
+  const newInGroup  = textGroup.includes(type);
+  const preserved   = (prevInGroup && newInGroup && typeof prev.content === 'string')
+    ? prev.content : '';
+
   blocks[index].type = type;
 
-  if(type === 'button') {
-    blocks[index].content = { 
-      text: 'DESCARGAR',
-      link: '',
-      icon: '<i class="fa-solid fa-file-pdf"></i>'
-    };
+  if (type === 'button') {
+    blocks[index].content = { text: 'DESCARGAR', link: '', icon: '<i class="fa-solid fa-file-pdf"></i>' };
     blocks[index].subtype = '';
-  } else if(type === 'heading') {
-    blocks[index].content = '';
-    blocks[index].subtype = 'h1';
-  } else if(type === 'ul' || type === 'ol') {
-    blocks[index].content = "";
+  } else if (type === 'heading') {
+    blocks[index].content = preserved;
+    // conservar subtipo h1/h2/h3 si venía de heading, si no, h1 por defecto
+    blocks[index].subtype = ['h1','h2','h3'].includes(prev.subtype) ? prev.subtype : 'h1';
+  } else if (type === 'ul' || type === 'ol') {
+    blocks[index].content = preserved;
     blocks[index].subtype = type;
-  } else {
+  } else if (type === 'image' || type === 'hr') {
     blocks[index].content = '';
+    blocks[index].subtype = '';
+  } else {
+    // text, quote
+    blocks[index].content = preserved;
     blocks[index].subtype = 'p';
   }
 

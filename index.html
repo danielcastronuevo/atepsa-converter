@@ -1099,6 +1099,15 @@ canvas {
       Exportar Portada
     </button>
   </div>
+
+  <button
+    class="button-editor"
+    onclick="resetState()"
+    style="margin-top:12px; width:100%; background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.25); color:#fca5a5;"
+  >
+    <i class="fa-solid fa-trash-can"></i>
+    Nueva nota / Limpiar
+  </button>
 </div>
 
 
@@ -1160,6 +1169,14 @@ canvas {
 </div>
 
 <script>
+const STORAGE_KEY = 'atepsa_editor_v1';
+let saveTimeout = null;
+let imageDataUrl = null;
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let img = null;
+
 const blockColors = {
   text: "#2E3863",        // azul suave moderno
   heading: "#EB5757",     // rojo más fino
@@ -1577,13 +1594,15 @@ function updateDownloadText(i, v){ downloadItems[i].text = v; updatePreview(); }
 function updateDownloadLink(i, v){ downloadItems[i].link = v; updatePreview(); }
 function updateDownloadDesc(i, v){ downloadItems[i].desc = v; updatePreview(); }
 
-document.getElementById("download-title").addEventListener("input", e => {
-  downloadTitle = e.target.value;
-  updatePreview();
-});
-document.getElementById("download-description").addEventListener("input", e => {
-  downloadMainDescription = e.target.value;
-  updatePreview();
+['input','change'].forEach(ev => {
+  document.getElementById("download-title").addEventListener(ev, e => {
+    downloadTitle = e.target.value;
+    updatePreview();
+  });
+  document.getElementById("download-description").addEventListener(ev, e => {
+    downloadMainDescription = e.target.value;
+    updatePreview();
+  });
 });
 
 /* -------------------------------
@@ -2249,6 +2268,7 @@ ${css}
 `;
 
 document.getElementById("preview").innerHTML = html;
+  saveState();
 }
 
 function showFeedback(message, type = 'success', duration = 2000) {
@@ -2606,18 +2626,153 @@ function exportMedidas() {
     .catch(() => showFeedback("No se pudo copiar las medidas", 'error', 2500));
 }
 
+/* ===============================
+   PERSISTENCIA LOCAL
+================================= */
+function saveState() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    const state = {
+      texto:               document.getElementById('article-texto').value,
+      fecha:               document.getElementById('article-fecha').value,
+      titulo:              document.getElementById('article-titulo').value,
+      subtitulo:           document.getElementById('article-subtitulo').value,
+      imagen:              document.getElementById('article-imagen').value,
+      downloadTitle:       document.getElementById('download-title').value,
+      downloadDescription: document.getElementById('download-description').value,
+      blocks,
+      downloadItems,
+      canvas: {
+        textMain:     document.getElementById('textMain').value,
+        textSub:      document.getElementById('textSub').value,
+        fontSizeMain: document.getElementById('fontSizeMain').value,
+        fontSizeSub:  document.getElementById('fontSizeSub').value,
+        gap:          document.getElementById('gap').value,
+        blockWidth:   document.getElementById('blockWidth').value,
+        gradientColor:document.getElementById('gradientColor').value,
+        paddingX:     document.getElementById('paddingX').value,
+        paddingY:     document.getElementById('paddingY').value,
+        mainBold:  document.getElementById('mainBold').classList.contains('active'),
+        mainItalic:document.getElementById('mainItalic').classList.contains('active'),
+        subBold:   document.getElementById('subBold').classList.contains('active'),
+        subItalic: document.getElementById('subItalic').classList.contains('active'),
+      },
+      canvasImage: imageDataUrl
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch(e) {
+      // Si la imagen supera la cuota, guardamos sin ella
+      const s2 = Object.assign({}, state, { canvasImage: null });
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s2)); } catch(_) {}
+    }
+  }, 500);
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+
+    if (s.texto     !== undefined) document.getElementById('article-texto').value     = s.texto;
+    if (s.fecha     !== undefined) document.getElementById('article-fecha').value     = s.fecha;
+    if (s.titulo    !== undefined) document.getElementById('article-titulo').value    = s.titulo;
+    if (s.subtitulo !== undefined) document.getElementById('article-subtitulo').value = s.subtitulo;
+    if (s.imagen    !== undefined) document.getElementById('article-imagen').value    = s.imagen;
+    if (s.downloadTitle)       { downloadTitle = s.downloadTitle; document.getElementById('download-title').value = s.downloadTitle; }
+    if (s.downloadDescription) { downloadMainDescription = s.downloadDescription; document.getElementById('download-description').value = s.downloadDescription; }
+    if (s.blocks)        blocks        = s.blocks;
+    if (s.downloadItems) downloadItems = s.downloadItems;
+
+    if (s.canvas) {
+      const c = s.canvas;
+      ['textMain','textSub','fontSizeMain','fontSizeSub','gap','blockWidth','gradientColor','paddingX','paddingY']
+        .forEach(id => { if (c[id] !== undefined) document.getElementById(id).value = c[id]; });
+      ['mainBold','mainItalic','subBold','subItalic']
+        .forEach(id => { document.getElementById(id).classList.toggle('active', !!c[id]); });
+    }
+
+    if (s.canvasImage) {
+      imageDataUrl = s.canvasImage;
+      img = new Image();
+      img.src = imageDataUrl;
+      img.onload = () => {
+        render();
+        const dz = document.getElementById('imageDropZone');
+        if (dz) {
+          dz.classList.add('has-image');
+          dz.style.backgroundImage = `url(${imageDataUrl})`;
+          dz.innerHTML = `<div class="dz-ok">Cargada</div><div class="dz-preview"><img src="${imageDataUrl}"></div>`;
+        }
+      };
+    }
+
+    return true;
+  } catch(e) {
+    console.warn('Error cargando estado guardado:', e);
+    return false;
+  }
+}
+
+function resetState() {
+  if (!confirm('¿Borrar todo y empezar una nueva nota?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+
+  blocks        = [];
+  downloadItems = [{ text: "DESCARGAR", link: "#", desc: "Descargá el comunicado completo:" }];
+  downloadTitle = "Zona de Descargas";
+  downloadMainDescription = "Descargá el comunicado completo en formato PDF.";
+  imageDataUrl  = null;
+  img           = null;
+
+  document.getElementById('article-texto').value       = 'ACTUALIDAD';
+  document.getElementById('article-fecha').value       = '';
+  document.getElementById('article-titulo').value      = 'Título del artículo';
+  document.getElementById('article-subtitulo').value   = '';
+  document.getElementById('article-imagen').value      = '';
+  document.getElementById('download-title').value      = 'Zona de Descargas';
+  document.getElementById('download-description').value= 'Descargá el comunicado completo en formato PDF.';
+  document.getElementById('textMain').value     = '';
+  document.getElementById('textSub').value      = 'ACTUALIDAD';
+  document.getElementById('fontSizeMain').value = '73';
+  document.getElementById('fontSizeSub').value  = '35';
+  document.getElementById('gap').value          = '40';
+  document.getElementById('blockWidth').value   = '800';
+  document.getElementById('gradientColor').value= '#000000';
+  document.getElementById('paddingX').value     = '60';
+  document.getElementById('paddingY').value     = '0';
+  document.getElementById('mainBold').classList.add('active');
+  document.getElementById('mainItalic').classList.add('active');
+  document.getElementById('subBold').classList.remove('active');
+  document.getElementById('subItalic').classList.remove('active');
+
+  const dz = document.getElementById('imageDropZone');
+  if (dz) {
+    dz.classList.remove('has-image', 'dragover');
+    dz.style.backgroundImage = '';
+    dz.innerHTML = 'Arrastrá una imagen aquí o hacé click para seleccionar';
+  }
+
+  renderBlocks();
+  renderDownloadItems();
+  updatePreview();
+  render();
+  showFeedback('Editor limpiado. Nueva nota lista.', 'success', 2500);
+}
+
 /* Eventos iniciales */
 ['article-texto','article-titulo','article-subtitulo','article-imagen','article-fecha']
-  .forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+  .forEach(id => {
+    document.getElementById(id).addEventListener('input',  updatePreview);
+    document.getElementById(id).addEventListener('change', updatePreview);
+  });
 
-updatePreview();
+loadState();
+renderBlocks();
 renderDownloadItems();
+updatePreview();
 
-
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-let img = null;
 
 // devuelve cuántas líneas ocupa un texto
 function wrapTextGetLines(ctx, text, maxWidth) {
@@ -2732,8 +2887,7 @@ titleInfo.lines.forEach(line => {
   baseY += lineHeightMain;
 });
 
-
-
+  saveState();
 }
 
 function buildFontStyle(boldId, italicId) {
@@ -2757,7 +2911,10 @@ function toggleStyle(id) {
   render();
 }
 
-document.querySelectorAll("input").forEach(el => el.addEventListener("input", render));
+document.querySelectorAll("input").forEach(el => {
+  el.addEventListener("input",  render);
+  el.addEventListener("change", render);
+});
 
 // Image input + drag & drop support
 const imageInputEl = document.getElementById("imageInput");
@@ -2765,18 +2922,32 @@ const dropZone = document.getElementById("imageDropZone");
 
 function handleFileAsImage(file){
   if(!file) return;
-  const url = URL.createObjectURL(file);
-  img = new Image();
-  img.src = url;
-  img.onload = () => {
-    render();
-    if(dropZone){
-      dropZone.classList.add('has-image');
-      dropZone.style.backgroundImage = `url(${url})`;
-      dropZone.innerHTML = `<div class="dz-ok">Cargada</div><div class="dz-preview"><img src="${url}"></div>`;
-    }
-    showFeedback('Imagen cargada correctamente', 'success', 2000);
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const srcFull = ev.target.result;
+    img = new Image();
+    img.src = srcFull;
+    img.onload = () => {
+      render();
+      const dz = document.getElementById('imageDropZone');
+      if(dz){
+        dz.classList.add('has-image');
+        dz.style.backgroundImage = `url(${srcFull})`;
+        dz.innerHTML = `<div class="dz-ok">Cargada</div><div class="dz-preview"><img src="${srcFull}"></div>`;
+      }
+      showFeedback('Imagen cargada correctamente', 'success', 2000);
+      // Comprimir para localStorage: máx 1200px, JPEG 82%
+      const tmp = document.createElement('canvas');
+      const maxDim = 1200;
+      const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
+      tmp.width  = Math.round(img.width  * sc);
+      tmp.height = Math.round(img.height * sc);
+      tmp.getContext('2d').drawImage(img, 0, 0, tmp.width, tmp.height);
+      imageDataUrl = tmp.toDataURL('image/jpeg', 0.82);
+      saveState();
+    };
   };
+  reader.readAsDataURL(file);
 }
 
 imageInputEl.addEventListener("change", e => {

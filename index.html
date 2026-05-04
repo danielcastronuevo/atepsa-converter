@@ -1,0 +1,2820 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Editor de Artículo Mejorado</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+:root {
+  --bg-color: #efefef
+  --bg-alt: #ffffff;
+  --bg-alt2: rgb(255, 255, 255);
+  --text-main: #2E3863;
+  --text-secondary: #00088;
+  --text-placeholder: #8a88a0;
+  --accent: #2E3863;
+  --accent-alt: #4B73AC;
+  --card-bg: #eee;
+  --card-border: #00000055;
+}
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+  background: var(--bg-color);
+  color: var(--text-main);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 16px 0;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+input, textarea, select, .button-editor {
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 8px 10px;
+  margin: 7px 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  outline: none;
+  background: var(--bg-alt);
+  color: var(--text-main);
+}
+
+select {
+  background: var(--bg-alt);
+  color: var(--text-main);
+  border: 1px solid var(--card-border);
+  appearance: none;
+  cursor: pointer;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232E3863' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+select:hover {
+  background-color: var(--bg-alt2);
+  border-color: var(--accent);
+}
+
+select:focus {
+  border-color: var(--accent);
+  background-color: var(--bg-alt2);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px #2E3863;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  color: #ffffff;
+  background: var(--accent);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s;
+}
+
+button:hover { 
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* ===============================
+   CONTENEDOR PRINCIPAL
+================================= */
+#editor-container {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+  -ms-overflow-style: none;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding-bottom: 0;
+}
+
+
+#editor {
+  flex: 0 1 450px;
+  max-width: 600px;
+  border-radius: 12px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+#preview-container {
+  flex: 1;
+  border-radius: 12px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+#editor::-webkit-scrollbar, #preview-container::-webkit-scrollbar {
+  display: none;
+}
+
+/*CADA SECCCION DEL EDITOR PRINCIPAL*/
+.editor-nx {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-alt);
+  box-shadow: 0 6px 18px rgba(10,10,10,0.04);
+  margin-bottom: 14px;
+}
+
+
+/* Tarjeta principal - header / contenido */
+.editor-n1{
+  background: #ffffff;
+  padding-top: 0;
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 8px 22px rgba(46,56,99,0.04);
+}
+
+/* Tarjeta secundaria - imagen / editor de portadas */
+.editor-n2{
+  background: #ffffff;
+  padding-top: 0;
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 8px 22px rgba(75,115,172,0.03);
+}
+
+/* Tarjeta de acciones / export */
+.editor-n3 {
+  padding: 24px;
+  border-radius: 14px;
+
+  background: #0f172a; /* slate oscuro */
+  color: #e5e7eb;
+}
+
+.button-editor h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.editor-n3 .button-editor{
+  margin: 0px 0px;
+}
+
+.editor-actions {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  container-type: inline-size;
+}
+
+.editor-actions .button-editor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  padding: 16px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  height: 50px;
+
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  color: #f1f5f9;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.editor-actions .button-editor:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.editor-actions .button-editor.button-small {
+  grid-column: auto;
+  width: 50px;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  align-self: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+}
+
+.editor-actions .button-editor.button-small:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12));
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.editor-actions .button-editor.button-small i {
+  margin: 0;
+  font-size: 20px;
+}
+
+.editor-actions #exportBtn {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+@container (max-width: 768px) {
+  .editor-actions {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+@container (max-width: 480px) {
+  .editor-actions {
+    grid-template-columns: 1fr auto;
+  }
+  
+  .editor-actions #exportBtn {
+    grid-column: 1 / -1;
+  }
+}
+
+.editor-n3 h2 i {
+  font-size: 18px !important;
+  color: #fff;
+  opacity: 0.85;
+}
+.editor-n3 h2{
+  color: #fff
+}
+
+/* ===============================
+   ENLACES RÁPIDOS (editor-links)
+================================= */
+.editor-links {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.editor-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #f1f5f9;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.editor-links a:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12));
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.editor-links a i {
+  font-size: 16px;
+}
+
+
+
+
+/* Pequeños refinamientos comunes */
+.editor-nx h2 {
+  margin-top: 0;
+  margin-bottom: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-nx h2 i {
+  font-size: 16px;
+  opacity: 0.85;
+}
+
+/* Form row helpers for compact inline controls */
+.form-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 8px; }
+.form-row label { flex: 1; display: flex; flex-direction: column; margin: 0; }
+.form-row label .note { font-size: 12px; color: var(--text-placeholder); margin-top: 4px; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; }
+
+/* Descargas: estilos específicos */
+.download-item { margin-bottom: 16px; }
+.download-item hr { margin: 18px 0; border: none; border-top: 1px solid var(--card-border); }
+.download-inline { display: flex; gap: 10px; align-items: flex-start; }
+.download-inline label { flex: 1; margin: 0; }
+.download-inline .icon-input { display:flex; gap:8px; align-items:center; }
+
+.download-inline .icon-input i{
+  color: var(--accent);
+  transition: all 0.1s ease;
+}
+
+.download-inline .icon-input:hover i{
+  scale: 1.1;
+  transform: translateY(0.5px);
+}
+
+
+.btn-delete {
+  background: transparent;
+  color: var(--accent);
+  border: none;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#download-description {
+  background: var(--bg-alt);
+  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--card-border);
+}
+.download-item-box { position: relative; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; background: var(--bg-alt); }
+.download-item-box .btn-delete { position: absolute; top: 8px; right: 8px; background: #fff; border: 1px solid #eee; color: var(--accent);; width:24px; height:24px; border-radius:50%; }
+
+/* Editor header image (same placeholder for both editors, fade to white) */
+/* ===== Editor Header Base ===== */
+.editor-header {
+  position: relative;
+  width: calc(100% + 36px);
+  height: 104px;
+  left: -18px;
+
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  overflow: hidden;
+
+  background-size: cover;
+  background-position: center;
+
+  margin-bottom: 16px;
+}
+
+/* Fade a blanco */
+.editor-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    #ffffff 100%
+  );
+}
+
+/* ===== Variantes ===== */
+.editor-header-1 {
+  background-image:
+    url("https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1400");
+}
+
+.editor-header-2 {
+  background-image:
+    url("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1400");
+}
+
+/* ===== Label centrado con blur ===== */
+.editor-header-label {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.editor-header-label p
+
+/* Iconos FA */
+.editor-header-label i {
+  font-size: 24px;
+  opacity: 0.9;
+}
+
+
+
+/* ===============================
+   TARJETAS DE PREVIEW
+================================= */
+#preview-container{
+  background: transparent;
+  position: relative;
+}
+
+
+.preview-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 14px rgba(46,56,99,0.06);
+  margin-bottom: 18px;
+}
+
+.preview-card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.canvas-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(75,115,172,0.03);
+  margin-bottom: 18px;
+}
+
+.canvas-card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#preview {
+  min-height: 400px;
+}
+
+#canvas {
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  max-width: 100%;
+  height: auto;
+  display: block;
+  background: var(--bg-alt);
+  background-image: url("https://listospararodar.com.ar/wp-content/uploads/2022/09/placeholder-54.webp");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+/* ===============================
+   BLOQUES DE CONTENIDO
+================================= */
+.block {
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  background: var(--bg-alt);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s, scale 0.2s;
+}
+
+.block { position: relative; }
+
+.block .btn-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  background: #fff;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.block:hover {
+  box-shadow: 0 4px 16px #00000055;
+  scale: 1.01;
+}
+
+.drag-handle {
+  padding: 8px 12px;
+  cursor: grab;
+  font-weight: 600;
+  color: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  background: var(--accent);
+}
+
+.block-content {
+  padding: 12px;
+  color: var(--text-main);
+}
+
+.block-controls {
+  text-align: right;
+  margin-top: 6px;
+  color: var(--text-secondary);
+}
+
+/* Rich text editable */
+.rich-text-block {
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--bg-alt);
+  color: var(--text-main);
+}
+
+.rich-text-block:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-placeholder);
+  font-style: italic;
+}
+
+input[type="text"], input[type="date"], textarea {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+input[type="text"] { white-space: nowrap; overflow-x: auto; }
+textarea { resize: vertical; }
+
+/* ===============================
+   DRAG & DROP
+================================= */
+.block.dragging { opacity: 0.4; transform: scale(0.98); }
+
+.placeholder {
+  height: 50px;
+  background: var(--bg-alt2);
+  border: 2px dashed var(--accent);
+  border-radius: 12px;
+  margin: 8px 0;
+}
+
+/* ===============================
+   FEEDBACK - SISTEMA DE NOTIFICACIONES
+================================= */
+#feedback-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 9999;
+  align-items: flex-end;
+}
+
+.feedback-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(46,56,99,0.25);
+  opacity: 1;
+  animation: slideIn 0.3s ease;
+  pointer-events: auto;
+  cursor: default;
+  width: fit-content;
+  max-width: 380px;
+  position: relative;
+  overflow: hidden;
+}
+
+.feedback-item::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: rgba(255,255,255,0.4);
+  animation: progressBar 2s linear forwards;
+}
+
+@keyframes progressBar {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(20px); }
+}
+
+.feedback-item.removing {
+  animation: slideOut 0.3s ease forwards;
+}
+
+.feedback-item.error {
+  background: #ef4444;
+}
+
+.feedback-item.success {
+  background: var(--accent);
+}
+
+.feedback-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-text {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/*EDITOR DE IMAGENES:*/
+#editor-img {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Dropzone para imagen base */
+.image-dropzone {
+  border: 2px dashed var(--card-border);
+  border-radius: 10px;
+  padding: 18px;
+  text-align: center;
+  color: var(--text-placeholder);
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.85));
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.image-dropzone.dragover {
+  border-color: var(--accent);
+  box-shadow: 0 6px 18px rgba(46,56,99,0.08) inset;
+  color: var(--text-main);
+}
+
+/* cuando ya hay imagen cargada */
+.image-dropzone.has-image { color: #fff; background-size: cover; background-position: center; position: relative; }
+.image-dropzone .dz-ok { position: absolute; right: 8px; top: 8px; background: rgba(0,0,0,0.5); color: #fff; padding: 6px 8px; border-radius: 6px; font-size: 13px; }
+.image-dropzone .dz-preview { width: 100%; height: 140px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.image-dropzone .dz-preview img{ max-width:100%; max-height:100%; object-fit:cover; display:block; }
+
+canvas {
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  width: 100%;
+  height: auto;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-group button {
+  width: 40px;
+  height: 40px;
+}
+
+/* Estilos específicos para los botones B/I (serif, cuadrados, altura igual que inputs) */
+#mainBold, #mainItalic, #subBold, #subItalic {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1;
+  background: var(--bg-alt);
+  color: var(--text-main);
+  border: 1px solid var(--card-border);
+}
+#mainBold.active, #subBold.active { background: var(--accent); color: #fff; font-weight: 700; }
+#mainItalic.active, #subItalic.active { background: var(--accent); color: #fff; font-style: italic; }
+
+/* Igualar altura de los inputs numéricos y del color */
+#fontSizeMain, #fontSizeSub { height: 40px; padding: 6px 8px; box-sizing: border-box; }
+#gradientColor { height: 40px; padding: 6px; box-sizing: border-box; border-radius: 8px; -webkit-appearance:none; appearance:none; background: var(--bg-alt); border:1px solid var(--card-border); }
+
+/* Ajustes específicos para editor-n2: reducir espacio entre fila de controles y su input */
+.editor-n2 #editor-img .form-row { margin-bottom: 4px; gap: 8px; align-items: center; }
+.editor-n2 #editor-img input[type="text"]#textMain,
+.editor-n2 #editor-img input[type="text"]#textSub { margin-top: 6px; }
+
+.btn-active {
+  background: var(--accent) !important;
+}
+
+/* ===============================
+   MODAL: POST TO MEDIDAS
+================================= */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(46, 56, 99, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--card-border);
+  gap: 16px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-alt);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  color: var(--text-main);
+  background: transparent;
+  scale: 1.2;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.modal-description {
+  margin: 0 0 16px 0;
+  color: var(--text-alt);
+  font-size: 14px;
+}
+
+.post-input {
+  width: 100%;
+  height: 300px;
+  padding: 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--bg-alt);
+  color: var(--text-main);
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.post-input::placeholder {
+  color: var(--text-alt);
+  opacity: 0.6;
+}
+
+.post-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--card-border);
+  justify-content: flex-end;
+}
+
+.modal-footer .button-editor {
+  flex: 0 1 auto;
+  padding: 12px 20px;
+  font-size: 13px;
+}
+
+</style>
+</head>
+<body>
+  
+  <div id="feedback-container"></div>
+
+<div id="editor-container">
+  <div id="editor">
+
+    <!-- ENLACES RÁPIDOS -->
+    <div class="editor-links">
+            <a href="https://www.atepsa.org.ar/wp-admin/" target="_blank" title="Ir al Panel de WordPress">
+        <i class="fa-brands fa-wordpress"></i>
+        WordPress
+      </a>
+      <a href="https://www.atepsa.org.ar/wp-admin/upload.php" target="_blank" title="Ir a Medios">
+        <i class="fa-solid fa-images"></i>
+        Medios
+      </a>
+      <a href="https://www.atepsa.org.ar/medidasgremiales/" target="_blank" title="Ir a Medidas Gremiales">
+        <i class="fa-solid fa-file-contract"></i>
+        Medidas G.
+      </a>
+
+    </div>
+
+    <div class="editor-nx editor-n1">
+      <div class="editor-header editor-header-1" title="Editor de Texto">
+        <div class="editor-header-label">
+          <i class="fa-solid fa-code"></i>
+          Editor de Texto
+        </div>
+      </div>
+
+        <h2><i class="fa-solid fa-heading"></i> Header del artículo</h2>
+
+        <div class="form-row">
+          <label>Texto (categoría): <input type="text" id="article-texto" value="ACTUALIDAD" autocomplete="off"></label>
+          <label>Fecha del artículo: <input type="date" id="article-fecha" autocomplete="off"></label>
+        </div>
+
+        <label>Título: <input type="text" id="article-titulo" value="Título del artículo" autocomplete="off"></label>
+        <label>Subtítulo: <input type="text" id="article-subtitulo" placeholder="Subtítulo del artículo" autocomplete="off"></label>
+
+        <div class="form-row">
+          <label>Imagen de portada (URL): <input type="text" id="article-imagen" placeholder="https://..." autocomplete="off"></label>
+          <label>Tiempo de lectura: <input type="text" id="article-lectura" readonly autocomplete="off"></label>
+        </div>
+
+<hr style="margin:25px;border:none;height:1px;background:linear-gradient(to right,transparent,#2E3863,transparent);">
+
+
+
+    <h2><i class="fa-solid fa-align-left"></i> Contenido del artículo</h2>
+    <div id="blocks"></div>
+    <button class="button-editor" onclick="addBlock()">+ Agregar bloque</button>
+
+    <hr style="margin:25px;border:none;height:1px;background:linear-gradient(to right,transparent,#2E3863,transparent);">
+
+
+    <h2><i class="fa-solid fa-download"></i> Zona de Descargas</h2>
+
+    <label>Título de la sección:</label>
+    <input type="text" id="download-title" value="Zona de Descargas" autocomplete="off">
+
+    <label>Descripción principal:</label>
+
+    
+
+    <input type="text" id="download-description" value="Descargá el comunicado completo en formato PDF." autocomplete="off">
+
+
+
+
+    <div id="download-items"></div>
+    <button class="button-editor add-download" onclick="addDownloadItem()"><i class="fa-solid fa-plus"></i> Agregar archivo para descargar</button>
+
+
+</div>
+
+  <div class="editor-nx editor-n2">
+    <div class="editor-header editor-header-2" title="Editor de Portadas">
+      <div class="editor-header-label">
+        <i class="fa-regular fa-image"></i>
+        Editor de Portadas
+      </div>
+    </div>
+      <div id="editor-img">
+
+      <h2 style="margin-bottom: 0;"><i class="fa-solid fa-sliders"></i> Configuración de portada</h2>
+
+      <label>Imagen base:</label>
+      <div id="imageDropZone" class="image-dropzone">Arrastrá una imagen aquí o hacé click para seleccionar</div>
+      <input type="file" id="imageInput" style="display:none">
+
+<div class="text-control" style="display:flex; width:100%; flex-direction:column;">
+  <div class="text-control-left" style="width:100%;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <label style="margin:0;">Texto 1:</label>
+
+      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+        <button type="button" id="mainBold" class="active">B</button>
+        <button type="button" id="mainItalic" class="active">I</button>
+        <input type="number" id="fontSizeMain" value="73" style="width:86px;">
+      </div>
+    </div>
+  </div>
+
+  <div class="text-control-right" style="width:100%; margin-top:0px;">
+    <input type="text" id="textMain" placeholder="Texto principal" style="width:100%;" autocomplete="off">
+  </div>
+</div>
+
+
+<div class="text-control" style="display:flex; width:100%; flex-direction:column; margin-top:10px;">
+  <div class="text-control-left" style="width:100%;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <label style="margin:0;">Texto 2:</label>
+
+      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+        <button type="button" id="subBold">B</button>
+        <button type="button" id="subItalic">I</button>
+        <input type="number" id="fontSizeSub" value="35" style="width:86px;" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="text-control-right" style="width:100%; margin-top:0px;">
+    <input type="text" id="textSub" value="ACTUALIDAD" style="width:100%;" autocomplete="off">
+  </div>
+</div>
+
+
+
+
+
+      <div class="form-row" style="margin-top:12px; gap:10px;">
+        <label style="flex:1; display:flex; flex-direction:column;">Gap:<input type="number" id="gap" value="40"></label>
+        <label style="flex:1; display:flex; flex-direction:column;">Width:<input type="number" id="blockWidth" value="800"></label>
+        <label style="flex:1; display:flex; flex-direction:column;">Color:<input type="color" id="gradientColor" value="#000000"></label>
+        <label style="flex:1; display:flex; flex-direction:column;">Padd. X:<input id="paddingX" type="number" value="60"></label>
+        <label style="flex:1; display:flex; flex-direction:column;">Padd. Y:<input id="paddingY" type="number" value="0"></label>
+      </div>
+
+    </div>
+  </div>
+
+<div class="editor-nx editor-n3">
+  <h2>
+    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+    Exportar HTML y Portada
+  </h2>
+
+  <div class="editor-actions">
+    <button
+      class="button-editor"
+      onclick="exportArticle()"
+    >
+      <i class="fa-regular fa-clipboard"></i>
+      Post
+    </button>
+
+    <button
+      class="button-editor"
+      onclick="exportMedidas()"
+    >
+      <i class="fa-solid fa-chart-bar"></i>
+      Medidas
+    </button>
+
+    <button
+      class="button-editor button-small"
+      onclick="openPostToMedidasModal()"
+      title="Convertir post a medidas"
+    >
+      <i class="fa-solid fa-arrow-right-arrow-left"></i>
+    </button>
+
+    <button
+      id="exportBtn"
+      class="button-editor"
+    >
+      <i class="fa-regular fa-image"></i>
+      Exportar Portada
+    </button>
+  </div>
+</div>
+
+
+
+
+
+  
+  </div>
+
+  
+
+  <div id="preview-container">
+    <div class="preview-card">
+      <h2>Vista previa comunicado</h2>
+      <div id="preview"></div>
+    </div>
+    
+    <div class="canvas-card">
+      <h2>Vista previa portada</h2>
+      <canvas id="canvas" width="1200" height="800"></canvas>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- MODAL: Post to Medidas Converter -->
+<div id="postToMedidasModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Convertir Post a Medidas</h2>
+      <button class="modal-close" onclick="closePostToMedidasModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p class="modal-description">Pega el HTML del post y se convertirá al formato de medidas</p>
+      <textarea 
+        id="postInput" 
+        class="post-input" 
+        placeholder="Pega aquí el HTML del post..."
+        rows="10"
+        autocomplete="off"
+      ></textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="button-editor" onclick="closePostToMedidasModal()">
+        <i class="fa-solid fa-xmark"></i>
+        Cancelar
+      </button>
+      <button class="button-editor" onclick="processPostToMedidas()">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+        Procesar y Copiar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const blockColors = {
+  text: "#2E3863",        // azul suave moderno
+  heading: "#EB5757",     // rojo más fino
+  quote: "#27AE60",       // verde premium
+  image: "#F2994A",       // naranja cálido
+  button: "#A66EEF",      // violeta claro más frío
+  hr: "#5E2CA5",          // violeta oscuro profundo
+  ul: "#6FCF97",          // verde pastel
+  ol: "#F2C94C"           // amarillo premium
+};
+
+
+let downloadTitle = "Zona de Descargas";
+let downloadMainDescription = "Descargá el comunicado completo en formato PDF.";
+
+downloadItems = [
+  { text: "DESCARGAR", link: "#", desc: "Descargá el comunicado completo:" }
+];
+
+let blocks = [];
+
+/* -------------------------------
+   BLOQUES DINÁMICOS
+--------------------------------*/
+function addBlock() {
+  const newBlock = { type: "text", subtype: "p", content: "" };
+  blocks.push(newBlock);
+  renderBlocks();
+  updatePreview();
+}
+
+function renderBlocks() {
+  const container = document.getElementById("blocks");
+  container.innerHTML = "";
+  blocks.forEach((b, i) => {
+    const div = document.createElement("div");
+    div.className = "block";
+    div.setAttribute("draggable", true);
+    div.setAttribute("data-index", i);
+
+    div.addEventListener("dragstart", dragStart);
+    div.addEventListener("dragend", dragEnd);
+    div.addEventListener("dragover", dragOverBlock);
+    div.addEventListener("drop", dropBlock);
+
+    div.innerHTML = `
+      <button class="btn-delete" onclick="deleteBlock(${i})" aria-label="Eliminar"><i class="fa-solid fa-x"></i></button>
+      <div class="drag-handle" style="background: ${blockColors[b.type] || '#e0e0e0'}">
+        ☰ Arrastrar (${b.type})
+      </div>
+      <div class="block-content">
+        <select onchange="changeBlockType(${i}, this.value)">
+            <option value="text" ${b.type==='text'?'selected':''}>Texto</option>
+            <option value="heading" ${b.type==='heading'?'selected':''}>Encabezado</option>
+            <option value="quote" ${b.type==='quote'?'selected':''}>Cita</option>
+            <option value="image" ${b.type==='image'?'selected':''}>Imagen</option>
+            <option value="button" ${b.type==='button'?'selected':''}>Botón</option>
+            <option value="hr" ${b.type==='hr'?'selected':''}>Separador</option>
+            <option value="ul" ${b.type==='ul'?'selected':''}>Lista desordenada</option>
+            <option value="ol" ${b.type==='ol'?'selected':''}>Lista ordenada</option>
+
+        </select>
+
+        ${renderBlockInput(b, i)}
+
+        <div class="block-controls"></div>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function parseMarkdown(text) {
+  if (!text) return "";
+
+  // Primero escapamos cualquier HTML del usuario
+  let safe = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // Negrita con *texto*
+  safe = safe.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+
+  // Links tipo [texto](link)
+  safe = safe.replace(/\[(.*?)\]\((.*?)\)/g, `<a href="$2" target="_blank">$1</a>`);
+
+  return safe;
+}
+
+function updateButtonIcon(i, v){
+  blocks[i].content.icon = v;
+  updatePreview();
+}
+
+function renderBlockInput(block, index) {
+
+  if(block.type === 'text' || block.type === 'heading' || block.type === 'quote') {
+    return `
+      <div contenteditable="true" class="rich-text-block"
+        data-placeholder="${block.type==='text'?'Escribe tu texto...':block.type==='heading'?'Escribe el encabezado...':'Escribe la cita...'}"
+        oninput="updateBlock(${index}, this.innerText)">${block.content}</div>
+
+      ${block.type==='heading' ? `
+        <select onchange="changeBlockSubtype(${index}, this.value)">
+          <option value="h1" ${block.subtype==='h1'?'selected':''}>H1</option>
+          <option value="h2" ${block.subtype==='h2'?'selected':''}>H2</option>
+          <option value="h3" ${block.subtype==='h3'?'selected':''}>H3</option>
+        </select>
+      ` : ''}
+    `;
+  }
+
+  if(block.type === 'ul' || block.type === 'ol') {
+  return `
+    <label>Items (uno por línea):</label>
+    <textarea rows="4"
+      oninput="updateBlock(${index}, this.value)"
+      placeholder="Item 1\nItem 2\nItem 3">${block.content || ""}</textarea>
+  `;
+}
+
+  if(block.type === 'image') {
+    return `<input type="text" placeholder="URL de la imagen" value="${block.content}" 
+             oninput="updateBlock(${index}, this.value)">`;
+  }
+
+  if(block.type === 'button') {
+    return `
+      <hr style="margin:25px;border:none;height:1px;background:linear-gradient(to right,transparent,#2E3863,transparent);">
+
+      <label>Texto del botón:</label>
+      <input type="text" 
+            placeholder="Texto del botón"
+            value="${block.content.text || 'DESCARGAR'}"
+            oninput="updateButtonText(${index}, this.value)">
+
+      <label>Link del botón:</label>
+      <input type="text"
+            placeholder="URL del botón"
+            value="${block.content.link || '#'}"
+            oninput="updateButtonLink(${index}, this.value)">
+
+      <label>Icono del botón:</label>
+
+      <div style="display:flex; align-items:center; gap:10px;">
+        <input type="text"
+          placeholder="<i class='fa-solid fa-file-pdf'></i>"
+          value="${(block.content.icon || '<i class=&quot;fa-solid fa-file-pdf&quot;></i>').replace(/"/g,'&quot;')}"
+          oninput="updateButtonIcon(${index}, this.value)"
+          style="flex:1;">
+
+        <button onclick="window.open('https://fontawesome.com/search', '_blank')"
+                style="width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+                      border:1px solid #ccc; background:#f7f7f7; border-radius:6px; cursor:pointer;">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </button>
+      </div>
+    `;
+  }
+
+
+
+  return "";
+}
+
+function changeBlockType(index, type){
+  blocks[index].type = type;
+
+  if(type === 'button') {
+    blocks[index].content = { 
+      text: 'DESCARGAR',
+      link: '',
+      icon: '<i class="fa-solid fa-file-pdf"></i>'
+    };
+    blocks[index].subtype = '';
+  } else if(type === 'heading') {
+    blocks[index].content = '';
+    blocks[index].subtype = 'h1';
+  } else if(type === 'ul' || type === 'ol') {
+    blocks[index].content = "";
+    blocks[index].subtype = type;
+  } else {
+    blocks[index].content = '';
+    blocks[index].subtype = 'p';
+  }
+
+  renderBlocks();
+  updatePreview();
+}
+
+
+function changeBlockSubtype(i, subtype){
+  blocks[i].subtype = subtype;
+  updatePreview();
+}
+
+function updateBlock(i, value){ blocks[i].content = value; updatePreview(); }
+function updateButtonText(i, v){ blocks[i].content.text = v; updatePreview(); }
+function updateButtonLink(i, v){ blocks[i].content.link = v; updatePreview(); }
+
+function deleteBlock(i){
+  blocks.splice(i,1);
+  renderBlocks();
+  updatePreview();
+}
+
+document.addEventListener('paste', pasteAsPlainText);
+
+
+function pasteAsPlainText(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    const start = e.target.selectionStart;
+    const end = e.target.selectionEnd;
+    const value = e.target.value;
+    e.target.value = value.slice(0, start) + text + value.slice(end);
+    e.target.selectionStart = e.target.selectionEnd = start + text.length;
+
+    // 🔹 DISPARAR EVENTO INPUT MANUALMENTE
+    e.target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  if (e.target.isContentEditable) {
+    e.preventDefault();
+    document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text'));
+    
+    // 🔹 DISPARAR EVENTO INPUT MANUALMENTE
+    e.target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+
+
+/* -------------------------------
+      DRAG & DROP PROFESIONAL
+--------------------------------*/
+let dragElem = null;
+let placeholder = null;
+let startIndex = null;
+
+let autoScrollInterval = null;
+let currentMouseY = 0; // <- guardamos la posición del mouse
+
+function startAutoScroll() {
+  if (autoScrollInterval) return;
+
+  autoScrollInterval = setInterval(() => {
+    const scrollSpeed = 12;
+    const buffer = 80; // margen superior e inferior
+
+    const y = currentMouseY; // usamos la variable global
+    const h = window.innerHeight;
+
+    if (y < buffer) {
+      window.scrollBy(0, -scrollSpeed);
+    } else if (y > h - buffer) {
+      window.scrollBy(0, scrollSpeed);
+    }
+  }, 16);
+}
+
+function stopAutoScroll() {
+  clearInterval(autoScrollInterval);
+  autoScrollInterval = null;
+}
+
+function dragStart(e) {
+  dragElem = e.currentTarget;
+  startIndex = parseInt(dragElem.dataset.index);
+
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", "");
+
+  dragElem.classList.add("dragging");
+
+  placeholder = document.createElement("div");
+  placeholder.className = "placeholder";
+  placeholder.style.height = dragElem.offsetHeight + "px";
+
+  placeholder.addEventListener("dragover", e => e.preventDefault());
+  placeholder.addEventListener("drop", dropBlock);
+
+  startAutoScroll();
+}
+
+function dragEnd() {
+  if (dragElem) dragElem.classList.remove("dragging");
+  dragElem = null;
+  placeholder?.remove();
+  placeholder = null;
+
+  renderBlocks();
+  updatePreview();
+  stopAutoScroll();
+}
+
+function dragOverBlock(e) {
+  e.preventDefault();
+
+  // Actualizamos la posición del mouse para el auto-scroll
+  currentMouseY = e.clientY;
+
+  const block = e.currentTarget;
+  const container = document.getElementById("blocks");
+
+  const blockRect = block.getBoundingClientRect();
+  const offset = e.clientY - blockRect.top;
+  const isBefore = offset < blockRect.height / 2;
+
+  if (block === placeholder) return;
+
+  if (!placeholder.parentNode) {
+    container.insertBefore(placeholder, block);
+  } else {
+    if (isBefore) {
+      block.parentNode.insertBefore(placeholder, block);
+    } else {
+      block.parentNode.insertBefore(placeholder, block.nextSibling);
+    }
+  }
+}
+
+
+
+function dropBlock(e) {
+  e.preventDefault();
+
+  const children = Array.from(document.querySelector("#blocks").children);
+  const newIndex = children.indexOf(placeholder);
+
+  if (newIndex !== -1 && startIndex !== null && startIndex !== newIndex) {
+    const moved = blocks.splice(startIndex, 1)[0];
+    blocks.splice(newIndex, 0, moved);
+  }
+
+  dragEnd();
+}
+
+
+
+
+/* -------------------------------
+   ZONA DE DESCARGAS
+--------------------------------*/
+function updateDownloadIcon(i, v){
+  downloadItems[i].icon = v;
+  updatePreview();
+}
+
+function renderDownloadItems() {
+  const cont = document.getElementById("download-items");
+  cont.innerHTML = "";
+  downloadItems.forEach((item, i) => {
+    cont.innerHTML += `
+      <div class="download-item" style="margin-top:20px;">
+
+
+
+        <div class="download-item-box">
+          <button class="btn-delete" onclick="removeDownloadItem(${i})"><i class="fa-solid fa-x"></i></i></button>
+          <label>Descripción del archivo:</label>
+          <input type="text" value="${(item.desc || '').replace(/"/g,'&quot;')}" oninput="updateDownloadDesc(${i}, this.value)">
+
+          <div class="download-inline" style="margin-top:10px;">
+              <label>Texto del botón:
+                <input type="text" value="${(item.text || '').replace(/"/g,'&quot;')}" oninput="updateDownloadText(${i}, this.value)">
+              </label>
+
+            <label>Link del archivo:
+              <input type="text" value="${(item.link || '#').replace(/"/g,'&quot;')}" oninput="updateDownloadLink(${i}, this.value)">
+            </label>
+
+            <label>Icono del botón:
+              <div class="icon-input">
+                <input type="text"
+                       value="${(item.icon || '<i class=&quot;fa-solid fa-file-pdf&quot;></i>').replace(/"/g,'&quot;')}"
+                       oninput="updateDownloadIcon(${i}, this.value)"
+                       style="flex:1;">
+
+                <button type="button" onclick="window.open('https://fontawesome.com/search', '_blank')"
+                        style="width:38px; height:38px; display:flex; align-items:center; justify-content:center; border:1px solid #ccc; background:#f7f7f7; border-radius:6px; cursor:pointer;">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </button>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+
+
+function addDownloadItem(){
+  downloadItems.push({
+    text: "DESCARGAR",
+    link: "",
+    desc: "Descargá el comunicado completo:"
+  });
+  renderDownloadItems();
+  updatePreview();
+}
+
+function removeDownloadItem(i){
+  downloadItems.splice(i,1);
+  renderDownloadItems();
+  updatePreview();
+}
+
+function updateDownloadText(i, v){ downloadItems[i].text = v; updatePreview(); }
+function updateDownloadLink(i, v){ downloadItems[i].link = v; updatePreview(); }
+function updateDownloadDesc(i, v){ downloadItems[i].desc = v; updatePreview(); }
+
+document.getElementById("download-title").addEventListener("input", e => {
+  downloadTitle = e.target.value;
+  updatePreview();
+});
+document.getElementById("download-description").addEventListener("input", e => {
+  downloadMainDescription = e.target.value;
+  updatePreview();
+});
+
+/* -------------------------------
+   PREVIEW Y EXPORTACIÓN
+--------------------------------*/
+const css = `<style>
+/* ======================================== */
+/* === VARIABLES DE COLOR ================= */
+/* ======================================== */
+:root {
+  --color-1: #2E3863;  /* rojo principal */
+  --color-2: #ffffff;  /* blanco */
+  --color-3: #1a1a1a;  /* texto principal oscuro */
+  --color-4: #4a4a4a;  /* texto secundario */
+  --color-5: #6a6a6a;  /* texto gris */
+  --color-6: #2a2a2a;  /* cuerpo del artículo */
+  --color-7: #e0e0e0;  /* bordes */
+  --color-8: #f8f9fa;  /* fondo cita */
+  --color-9: #ccc;     /* borde discreto */
+  --color-10: #222;    /* títulos oscuros */
+  --color-11: #333;    /* texto medio oscuro */
+  --color-12: #aaa;    /* línea separadora */
+}
+
+/* ======================================== */
+/* ==== RESET LOCAL Y BASE ==== */
+
+body .viper-article p,
+.viper-article.viper-article p {
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+.viper-article {
+  box-sizing: border-box !important;
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+  color: var(--color-3) !important;
+  line-height: 1.7 !important;
+  background: var(--color-2) !important;
+  margin: 0 auto !important;
+}
+
+.viper-article * {
+  box-sizing: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ==== CONTENEDOR PRINCIPAL ==== */
+.article-container {
+  background: var(--color-2) !important;
+}
+
+/* ==== CABECERA ==== */
+.article-category {
+  display: inline-block !important;
+  background: var(--color-1) !important;
+  color: var(--color-2) !important;
+  padding: 6px 16px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  margin-bottom: 16px !important;
+  font-family: 'Arial', sans-serif !important;
+}
+
+.article-date {
+  font-size: 14px !important;
+  color: var(--color-5) !important;
+  margin-bottom: 20px !important;
+  font-family: 'Arial', sans-serif !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.article-date i {
+  color: var(--color-1) !important;
+}
+
+.article-title {
+  font-size: 42px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 16px !important;
+  color: var(--color-3) !important;
+}
+
+.article-subtitle {
+  font-size: 20px !important;
+  color: var(--color-4) !important;
+  font-weight: 400 !important;
+  margin-bottom: 24px !important;
+  line-height: 1.5 !important;
+}
+
+.article-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+  padding: 20px 0 !important;
+  border-top: 1px solid var(--color-7) !important;
+  border-bottom: 1px solid var(--color-7) !important;
+  margin-bottom: 32px !important;
+  font-family: 'Arial', sans-serif !important;
+}
+
+/*===== BOTONES DE COMPARTIR ====*/
+
+/* Versión gris con hover de color SIN transition */
+
+.share-buttons {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.share-button {
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  font-size: 16px !important;
+  text-decoration: none !important;
+
+  /* Estilo base gris */
+  background: #efefef !important;
+  border: 1px solid #bfbfbf !important;
+  color: #555 !important;
+
+  /* Nada de transitions */
+  transition: none !important;
+}
+
+/* Colores reales en hover (cambio inmediato) */
+.share-button.whatsapp:hover {
+  background: #25D366 !important;
+  border-color: #25D366 !important;
+  color: #fff !important;
+}
+
+.share-button.facebook:hover {
+  background: #1877F2 !important;
+  border-color: #1877F2 !important;
+  color: #fff !important;
+}
+
+.share-button.twitter:hover {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+}
+
+.meta-separator {
+  width: 1px !important;
+  height: 34px !important;
+  background: var(--color-12) !important;
+  opacity: 0.6 !important;
+}
+
+
+/*=================*/
+
+.reading-time {
+  font-size: 13px !important;
+  color: var(--color-5) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.reading-time i {
+  color: var(--color-1) !important;
+}
+
+/* ==== IMÁGENES ==== */
+.featured-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 350px !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  margin-bottom: 32px !important;
+  display: block !important;
+  position: relative !important;
+  background: none !important;
+}
+
+.featured-image img {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  object-fit: cover !important;
+}
+
+.article-image {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 32px 0 !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  display: block !important;
+  position: relative !important;
+  background: none !important;
+}
+
+.article-image img {
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+.image-placeholder {
+  display: none !important;
+}
+
+
+
+/* ==== CONTENIDO ==== */
+.article-content {
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+  color: var(--color-6) !important;
+}
+
+.article-content p {
+  margin-bottom: 24px !important;
+}
+
+.article-content p.dropcap::first-letter {
+  font-size: 72px !important;
+  font-weight: 700 !important;
+  float: left !important;
+  line-height: 60px !important;
+  padding-right: 12px !important;
+  margin-top: 4px !important;
+  color: var(--color-1) !important;
+}
+
+.article-quote {
+  background: var(--color-8) !important;
+  border-left: 4px solid var(--color-1) !important;
+  padding: 28px 32px !important;
+  margin: 32px 0 !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  line-height: 1.6 !important;
+  color: var(--color-6) !important;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 768px) {
+  .article-container {
+    /*padding: 32px 24px !important;*/
+  }
+  
+  /* Ocultar solo el texto "Compartir" y su iconito */
+  .share-buttons > .reading-time {
+    display: none !important;
+  }
+
+
+  .article-title {
+    font-size: 32px !important;
+  }
+
+  .article-subtitle {
+    font-size: 18px !important;
+  }
+
+  .featured-image,
+  .article-image {
+    height: 250px !important;
+  }
+
+  .article-content {
+    font-size: 16px !important;
+  }
+
+  .article-quote {
+    font-size: 18px !important;
+    padding: 20px 24px !important;
+  }
+}
+
+@media (max-width: 350px) {
+  .reading-time span {
+    font-size: 0 !important;
+  }
+
+  .reading-time span::before {
+    content: "2 min";
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important; /* evita el wrap */
+  }
+}
+
+/* ==== BOTÓN ==== */
+/* EL BOTON */
+
+.button {
+  --main-focus: #2d8cf0 !important;
+  --font-color: #323232 !important;
+  --bg-color-sub: #dedede !important;
+  --bg-color: #eee !important;
+  --main-color: #323232 !important;
+  position: relative !important;
+  width: 150px !important;
+  height: 40px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  border: 2px solid var(--main-color) !important;
+  box-shadow: 4px 4px var(--main-color) !important;
+  background-color: var(--bg-color) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+}
+
+.button__icon, .button__text {
+  transition: all 0.3s !important;
+}
+
+.button__text {
+  transform: translateX(13px) !important;
+  color: var(--font-color) !important;
+  font-weight: 600 !important;
+}
+
+.button__icon {
+  position: absolute !important;
+  transform: translateX(109px) !important;
+  height: 100% !important;
+  width: 39px !important;
+  background-color: var(--bg-color-sub) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.button__icon i {
+  font-size: 18px !important;
+  color: var(--main-color) !important;
+}
+
+.button:hover {
+  background: var(--bg-color) !important;
+}
+
+.button:hover .button__text {
+  color: transparent !important;
+}
+
+.button:hover .button__icon {
+  width: 148px !important;
+  transform: translateX(0) !important;
+}
+
+.button:active {
+  transform: translate(3px, 3px) !important;
+  box-shadow: 0px 0px var(--main-color) !important;
+}
+
+/* ==== ZONA DE DESCARGAS ==== */
+.download-section {
+  margin-top: 3rem !important;
+  padding: 2rem 1.5rem !important;
+  background: var(--color-2) !important;
+  border: 1px solid var(--color-9) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+
+.download-section .section-header-h3 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--color-10) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.download-section .section-header-h3 i {
+  color: var(--color-1) !important;
+}
+
+.download-section .section-header-h3 {
+  margin-top: 18px !important;
+}
+
+.download-description {
+  font-family: 'Arial', sans-serif !important;
+  color: var(--color-11) !important;
+  max-width: 700px !important;
+  margin-bottom: 1.5rem !important;
+  line-height: 1.6 !important;
+}
+
+/* ==== CABECERAS PERSONALIZADAS ==== */
+.section-header-h1 {
+  font-size: 42px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 16px !important;
+  color: var(--color-3) !important;
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+.section-header-h2 {
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 16px !important;
+  color: var(--color-4) !important;
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+.section-header-h3 {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 16px !important;
+  color: var(--color-10) !important;
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+.section-header-h1,
+.section-header-h2,
+.section-header-h3 {
+  text-align: left !important;
+}
+
+/* ==== HR ==== */
+.article-content hr {
+  border: none !important;
+  border-top: 1px solid var(--color-12) !important;
+  margin: 48px auto !important;
+  width: 80% !important;
+  opacity: 0.6 !important;
+}
+
+.article-content .download-hr{
+  border: none !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, rgba(46,56,99,0.18), rgba(46,56,99,0.06));
+  margin: 28px auto !important;
+  width: 100% !important;
+  border-radius: 3px;
+}
+
+/*LISTAS ORDENADAS Y DESORDENADAS*/
+  .article-content ul li{
+    margin-left: 20px !important
+}
+
+.article-content ol li{
+    margin-left: 20px !important
+}
+
+/*Alinear el santo texto a la izquierda*/
+.viper-article .article-wrapper p{
+    text-align: start
+}
+</style>`;
+
+function computeReadingTime(){
+  let totalWords = 0;
+  blocks.forEach(b => {
+    if(typeof b.content === 'string') totalWords += b.content.trim().split(/\s+/).length;
+    if(typeof b.content === 'object' && b.type==='button') totalWords += b.content.text.trim().split(/\s+/).length;
+  });
+  return Math.max(1, Math.ceil(totalWords / 200)) + " min de lectura";
+}
+
+function updatePreview() {
+
+const texto = document.getElementById("article-texto").value;
+const titulo = document.getElementById("article-titulo").value;
+const subtitulo = document.getElementById("article-subtitulo").value;
+const imagen = document.getElementById("article-imagen").value;
+
+
+const fechaInput = document.getElementById("article-fecha").value;
+
+let fecha;
+if(fechaInput){
+  const [y,m,d] = fechaInput.split("-");
+  fecha = new Date(y, m-1, d);
+} else {
+  fecha = new Date();
+}
+
+
+  const lectura = computeReadingTime();
+  document.getElementById("article-lectura").value = lectura;
+
+  let html = `
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<div class="viper-article">
+  <article class="article-container">
+
+    <div class="article-category">${texto}</div>
+
+    <div class="article-date">
+      <i class="far fa-calendar-alt"></i>
+      <span>${fecha.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</span>
+    </div>
+
+    <p class="section-header-h1">${titulo}</p>
+    ${subtitulo && subtitulo.trim() ? `<p class="section-header-h2">${subtitulo}</p>` : ''}
+
+    <div class="article-meta">
+
+      <div class="reading-time">
+        <i class="far fa-clock"></i>
+        <span>${lectura}</span>
+      </div>
+
+      <div class="meta-separator"></div>
+
+      <div class="share-buttons">
+        <div class="reading-time">
+          <i class="fa-solid fa-share"></i>
+          <span>Compartir:</span>
+        </div>
+
+        <a class="share-button whatsapp"
+          href="javascript:void(0)"
+          target="_blank"><i class="fab fa-whatsapp"></i></a>
+
+        <a class="share-button facebook"
+          href="javascript:void(0)"
+          target="_blank"><i class="fab fa-facebook-f"></i></a>
+
+        <a class="share-button twitter"
+          href="javascript:void(0)"
+          target="_blank"><i class="fab fa-x-twitter"></i></a>
+
+      </div>
+
+    </div>
+
+    ${imagen ? `
+      <div class="featured-image">
+        <img src="${imagen}" alt="Imagen destacada">
+      </div>
+    ` : ''}
+
+    <div class="article-content">
+  `;
+
+
+
+/* RENDER DE BLOQUES */
+let firstParagraphApplied = false;
+
+blocks.forEach(b => {
+  if(b.type === 'text') {
+    if(!firstParagraphApplied) {
+      html += `<p class="dropcap">${parseMarkdown(b.content)}</p>`;
+      firstParagraphApplied = true;
+    } else {
+      html += `<p>${parseMarkdown(b.content)}</p>`;
+    }
+  }
+
+  if(b.type === 'ul' || b.type === 'ol') {
+  const tag = b.type; // ul u ol
+  const items = (b.content || "")
+    .split(/\n+/)
+    .map(i => i.trim())
+    .filter(i => i.length > 0);
+
+  if(items.length > 0) {
+    html += `<${tag}>`;
+    items.forEach(it => {
+      html += `<li>${parseMarkdown(it)}</li>`;
+    });
+    html += `</${tag}>`;
+  }
+}
+
+
+  if(b.type === 'heading') {
+  let cls = "section-header-h1";
+  if(b.subtype === "h2") cls = "section-header-h2";
+  if(b.subtype === "h3") cls = "section-header-h3";
+
+  html += `<p class="${cls}">${b.content}</p>`;
+}
+
+function sanitizeInput(el) {
+  el.innerText = el.innerText.replace(/</g, "").replace(/>/g, "");
+}
+
+  if(b.type === 'quote') html += `<div class="article-quote">${parseMarkdown(b.content)}</div>`;
+  if(b.type === 'image') {
+    html += b.content
+      ? `<div class="article-image"><img src="${b.content}"></div>`
+      : `<div class="article-image"><div class="image-placeholder"><i class="far fa-image"></i> Imagen</div></div>`;
+  }
+  if(b.type === 'hr') html += `<hr>`;
+  if(b.type === "button" && b.content.text){
+    const t = (b.content.text || "DESCARGAR").replace(/"/g,'&quot;');
+    const l = (b.content.link || "#").replace(/"/g,'&quot;');
+    const icon = b.content.icon || '<i class="fa-solid fa-file-pdf"></i>';
+
+    html += `
+      <div class="download-button-wrapper">
+        <button class="button" type="button" onclick="window.open('${l}','_blank')">
+          <span class="button__text">${t}</span>
+          <span class="button__icon">${icon}</span>
+        </button>
+      </div>
+    `;
+  }
+});
+
+
+/* ZONA DE DESCARGAS */
+if(downloadItems.length > 0){
+  html += `
+    <section class="download-section">
+      <p class="section-header-h3">
+        <i class="fa-solid fa-download"></i>
+        ${downloadTitle}
+      </p>
+
+      <p class="download-description">${downloadMainDescription}</p>
+  `;
+
+  downloadItems.forEach(item => {
+    html += `
+      <hr class="download-hr">
+
+      <p class="download-item-desc">${item.desc}</p>
+
+      <div class="download-button-wrapper">
+        <button class="button" type="button" onclick="window.open('${item.link}')">
+          <span class="button__text">${item.text}</span>
+          <span class="button__icon">${item.icon || '<i class="fa-solid fa-file-pdf"></i>'}</span>
+
+
+        </button>
+      </div>
+    `;
+  });
+
+  html += `</section>`;
+}
+
+html += `
+    </div>
+  </article>
+</div>
+${css}
+`;
+
+document.getElementById("preview").innerHTML = html;
+}
+
+function showFeedback(message, type = 'success', duration = 2000) {
+  const container = document.getElementById("feedback-container");
+  
+  // Limitar a máximo 5 notificaciones simultáneas
+  const items = container.querySelectorAll('.feedback-item');
+  if(items.length >= 5) {
+    const oldest = items[0];
+    oldest.classList.add('removing');
+    setTimeout(() => oldest.remove(), 300);
+  }
+
+  const iconMap = {
+    success: '<i class="fa-solid fa-circle-check"></i>',
+    error: '<i class="fa-solid fa-circle-xmark"></i>'
+  };
+  
+  const icon = iconMap[type] || iconMap.success;
+
+  const item = document.createElement("div");
+  item.className = `feedback-item ${type}`;
+  item.innerHTML = `
+    <div class="feedback-icon">${icon}</div>
+    <div class="feedback-text">${message}</div>
+  `;
+  
+  container.appendChild(item);
+
+  setTimeout(() => {
+    item.classList.add('removing');
+    setTimeout(() => item.remove(), 300);
+  }, 2000);
+}
+
+/* ===============================
+   POST TO MEDIDAS CONVERTER
+================================= */
+function openPostToMedidasModal() {
+  const modal = document.getElementById('postToMedidasModal');
+  modal.classList.add('active');
+  document.getElementById('postInput').value = '';
+  document.getElementById('postInput').focus();
+}
+
+function closePostToMedidasModal() {
+  const modal = document.getElementById('postToMedidasModal');
+  modal.classList.remove('active');
+}
+
+function processPostToMedidas() {
+  const postHtml = document.getElementById('postInput').value.trim();
+  
+  if (!postHtml) {
+    showFeedback("Por favor pega el HTML del post", 'error', 2500);
+    return;
+  }
+
+  try {
+    // Crear un elemento temporal para parsear el HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = postHtml;
+
+    // Extraer fecha
+    let fecha = new Date();
+    const dateMatch = postHtml.match(/(\d{1,2})\s+de\s+(\w+)\s+de\s+(\d{4})/i);
+    if (dateMatch) {
+      const monthName = dateMatch[2].toLowerCase();
+      const months = {
+        'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+        'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+      };
+      const month = months[monthName] ?? new Date().getMonth();
+      fecha = new Date(dateMatch[3], month, dateMatch[1]);
+    }
+
+    // Extraer título - buscar el primer h1 o párrafo con clase section-header-h1
+    let titulo = 'Título del comunicado';
+    const titleElement = tempDiv.querySelector('p.section-header-h1') || tempDiv.querySelector('h1');
+    if (titleElement) {
+      titulo = titleElement.textContent.trim();
+    }
+
+    // Extraer imagen - SOLO SI ES IMAGEN DE PORTADA (.featured-image)
+    let imagen = '';
+    const featuredImageElement = tempDiv.querySelector('.featured-image img');
+    if (featuredImageElement) {
+      imagen = featuredImageElement.src;
+    }
+
+    // Extraer contenido (todo excepto header y meta)
+    let contentHtml = '';
+    
+    // Remover la sección de meta (share buttons) si existe
+    const metaSection = tempDiv.querySelector('.article-meta');
+    if (metaSection) {
+      metaSection.remove();
+    }
+
+    // Remover la imagen de portada si existe (ya la extraimos)
+    const featuredImageDiv = tempDiv.querySelector('.featured-image');
+    if (featuredImageDiv) {
+      featuredImageDiv.remove();
+    }
+
+    // Remover category y date del header
+    const categoryEl = tempDiv.querySelector('.article-category');
+    const dateEl = tempDiv.querySelector('.article-date');
+    const titleEl = tempDiv.querySelector('p.section-header-h1');
+    const subtitleEl = tempDiv.querySelector('p.section-header-h2');
+    
+    if (categoryEl) categoryEl.remove();
+    if (dateEl) dateEl.remove();
+    if (titleEl) titleEl.remove();
+    if (subtitleEl) subtitleEl.remove();
+
+    // Obtener el contenido restante
+    const contentSection = tempDiv.querySelector('.article-content');
+    if (contentSection) {
+      contentHtml = contentSection.innerHTML;
+    } else {
+      contentHtml = tempDiv.innerHTML;
+    }
+
+    // Generar el HTML de medidas
+    let html = `
+<!-- COMIENZO DEL COMUNICADO - ${fecha.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})} -->
+
+<div class="article-wrapper timeline-event">
+
+  <div class="featured-topline timeline-anchor">
+    <div class="topline-content">
+      <span class="topline-date">
+        <i class="far fa-calendar-alt"></i>
+        <span>${fecha.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</span>
+      </span>
+      <span class="topline-sep">|</span>
+      <strong class="topline-title">${titulo}</strong>
+    </div>
+  </div>
+
+  <hr class="header-separator">
+`;
+
+    if (imagen) {
+      html += `
+  <div class="featured-image">
+    <img src="${imagen}" alt="Imagen destacada">
+  </div>
+`;
+    }
+
+    html += `
+  <div class="article-content">
+    ${contentHtml}
+  </div>
+</div>
+`;
+
+    // Copiar al portapapeles
+    navigator.clipboard.writeText(html)
+      .then(() => {
+        showFeedback("Medidas generadas y copiadas!", 'success', 2500);
+        closePostToMedidasModal();
+      })
+      .catch(() => {
+        showFeedback("No se pudo copiar al portapapeles", 'error', 2500);
+      });
+
+  } catch (error) {
+    console.error('Error procesando post:', error);
+    showFeedback("Error al procesar el HTML. Verifica que sea válido.", 'error', 2500);
+  }
+}
+
+// Cerrar modal al hacer click fuera
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('postToMedidasModal');
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closePostToMedidasModal();
+    }
+  });
+  
+  // Cerrar con ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closePostToMedidasModal();
+    }
+  });
+  
+  // Inicializar botones de share
+  updateShareButtons();
+});
+
+function updateShareButtons() {
+  const currentUrl = encodeURIComponent(window.location.href);
+  const whatsappBtn = document.querySelector('.share-button.whatsapp');
+  const facebookBtn = document.querySelector('.share-button.facebook');
+  const twitterBtn = document.querySelector('.share-button.twitter');
+  
+  if (whatsappBtn) whatsappBtn.href = `https://wa.me/?text=${currentUrl}`;
+  if (facebookBtn) facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`;
+  if (twitterBtn) twitterBtn.href = `https://twitter.com/intent/tweet?url=${currentUrl}`;
+}
+
+function exportArticle() {
+  updatePreview();
+  updateShareButtons();
+  navigator.clipboard.writeText(document.getElementById("preview").innerHTML)
+    .then(() => showFeedback("Artículo copiado al portapapeles!", 'success', 2500))
+    .catch(() => showFeedback("No se pudo copiar el artículo", 'error', 2500));
+}
+
+function exportMedidas() {
+  const titulo = document.getElementById("article-titulo").value;
+  const imagen = document.getElementById("article-imagen").value;
+  const fechaInput = document.getElementById("article-fecha").value;
+
+  let fecha;
+  if(fechaInput){
+    const [y,m,d] = fechaInput.split("-");
+    fecha = new Date(y, m-1, d);
+  } else {
+    fecha = new Date();
+  }
+
+  let html = `
+<!-- COMIENZO DEL COMUNICADO - ${fecha.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})} -->
+
+<div class="article-wrapper timeline-event">
+
+  <div class="featured-topline timeline-anchor">
+    <div class="topline-content">
+      <span class="topline-date">
+        <i class="far fa-calendar-alt"></i>
+        <span>${fecha.toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</span>
+      </span>
+      <span class="topline-sep">|</span>
+      <strong class="topline-title">${titulo}</strong>
+    </div>
+  </div>
+
+  <hr class="header-separator">
+`;
+
+  if(imagen) {
+    html += `
+  <div class="featured-image">
+    <img src="${imagen}" alt="Imagen destacada">
+  </div>
+`;
+  }
+
+  html += `
+  <div class="article-content">
+`;
+
+  /* RENDER DE BLOQUES */
+  let firstParagraphApplied = false;
+
+  blocks.forEach(b => {
+    if(b.type === 'text') {
+      if(!firstParagraphApplied) {
+        html += `<p class="dropcap">${parseMarkdown(b.content)}</p>`;
+        firstParagraphApplied = true;
+      } else {
+        html += `<p>${parseMarkdown(b.content)}</p>`;
+      }
+    }
+
+    if(b.type === 'ul' || b.type === 'ol') {
+      const tag = b.type;
+      const items = (b.content || "")
+        .split(/\n+/)
+        .map(i => i.trim())
+        .filter(i => i.length > 0);
+
+      if(items.length > 0) {
+        html += `<${tag}>`;
+        items.forEach(it => {
+          html += `<li>${parseMarkdown(it)}</li>`;
+        });
+        html += `</${tag}>`;
+      }
+    }
+
+    if(b.type === 'heading') {
+      let cls = "section-header-h1";
+      if(b.subtype === "h2") cls = "section-header-h2";
+      if(b.subtype === "h3") cls = "section-header-h3";
+      html += `<p class="${cls}">${b.content}</p>`;
+    }
+
+    if(b.type === 'quote') html += `<div class="article-quote">${parseMarkdown(b.content)}</div>`;
+    if(b.type === 'image') {
+      html += b.content
+        ? `<div class="article-image"><img src="${b.content}"></div>`
+        : `<div class="article-image"><div class="image-placeholder"><i class="far fa-image"></i> Imagen</div></div>`;
+    }
+    if(b.type === 'hr') html += `<hr>`;
+    if(b.type === "button" && b.content.text){
+      const t = (b.content.text || "DESCARGAR").replace(/"/g,'&quot;');
+      const l = (b.content.link || "#").replace(/"/g,'&quot;');
+      const icon = b.content.icon || '<i class="fa-solid fa-file-pdf"></i>';
+
+      html += `
+      <div class="download-button-wrapper">
+        <button class="button" type="button" onclick="window.open('${l}','_blank')">
+          <span class="button__text">${t}</span>
+          <span class="button__icon">${icon}</span>
+        </button>
+      </div>
+    `;
+    }
+  });
+
+  /* ZONA DE DESCARGAS */
+  if(downloadItems.length > 0){
+    html += `
+    <section class="download-section">
+      <p class="section-header-h3">
+        <i class="fa-solid fa-download"></i>
+        ${downloadTitle}
+      </p>
+
+      <p class="download-description">${downloadMainDescription}</p>
+  `;
+
+    downloadItems.forEach(item => {
+      html += `
+      <hr class="download-hr">
+
+      <p class="download-item-desc">${item.desc}</p>
+
+      <div class="download-button-wrapper">
+        <button class="button" type="button" onclick="window.open('${item.link}')">
+          <span class="button__text">${item.text}</span>
+          <span class="button__icon">${item.icon || '<i class="fa-solid fa-file-pdf"></i>'}</span>
+        </button>
+      </div>
+    `;
+    });
+
+    html += `</section>`;
+  }
+
+  html += `
+  </div>
+</div>
+`;
+
+  navigator.clipboard.writeText(html)
+    .then(() => showFeedback("Medidas copiadas al portapapeles!", 'success', 2500))
+    .catch(() => showFeedback("No se pudo copiar las medidas", 'error', 2500));
+}
+
+/* Eventos iniciales */
+['article-texto','article-titulo','article-subtitulo','article-imagen','article-fecha']
+  .forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+
+updatePreview();
+renderDownloadItems();
+
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let img = null;
+
+// devuelve cuántas líneas ocupa un texto
+function wrapTextGetLines(ctx, text, maxWidth) {
+  if (!text) return { lines: [], height: 0 };
+
+  const words = text.split(" ");
+  let line = "";
+  const lines = [];
+
+  const fontSize = parseInt(ctx.font.match(/(\d+)px/)[1]);
+  const lineHeight = fontSize * 1.2;
+
+  for (let i = 0; i < words.length; i++) {
+    let testLine = line + words[i] + " ";
+    const testWidth = ctx.measureText(testLine).width;
+
+    if (testWidth > maxWidth && i > 0) {
+      lines.push(line);
+      line = words[i] + " ";
+    } else {
+      line = testLine;
+    }
+  }
+
+  lines.push(line);
+
+  return {
+    lines,
+    height: lines.length * lineHeight
+  };
+}
+
+
+function render() {
+  if (!img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    return;
+  }
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  const paddingX = parseInt(document.getElementById("paddingX").value);
+const paddingY = parseInt(document.getElementById("paddingY").value);
+
+  const blockWidth = parseInt(document.getElementById("blockWidth").value);
+  const gap = parseInt(document.getElementById("gap").value);
+
+
+  const sizeMain = parseInt(document.getElementById("fontSizeMain").value);
+  const sizeSub = parseInt(document.getElementById("fontSizeSub").value);
+
+  const styleMain = buildFontStyle("mainBold", "mainItalic");
+  const styleSub = buildFontStyle("subBold", "subItalic");
+
+  const main = document.getElementById("textMain").value;
+  const sub = document.getElementById("textSub").value;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // blur background
+  ctx.filter = "blur(30px)";
+  const scaleBg = Math.max(W / img.width, H / img.height);
+  ctx.drawImage(img, 0, 0, img.width * scaleBg, img.height * scaleBg);
+
+  // main image
+  ctx.filter = "none";
+  const scale = Math.min(W / img.width, H / img.height);
+  const ix = (W - img.width * scale) / 2;
+  const iy = (H - img.height * scale) / 2;
+  ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
+
+  // gradient
+  const color = document.getElementById("gradientColor").value;
+  const grad = ctx.createLinearGradient(0, H, 0, 0);
+  grad.addColorStop(0, color + "E0");
+  grad.addColorStop(0.4, color + "80");
+  grad.addColorStop(1, color + "00");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // medir textos
+  ctx.fillStyle = "white";
+
+  ctx.font = `${styleMain} ${sizeMain}px Georgia`;
+
+  const titleInfo = wrapTextGetLines(ctx, main, blockWidth);
+
+  ctx.font = `${styleSub} ${sizeSub}px Roboto`;
+  const subInfo = wrapTextGetLines(ctx, sub, blockWidth);
+
+  // layout dinámico
+const totalTextHeight = subInfo.height + gap + titleInfo.height;
+let baseY = H - paddingY - totalTextHeight;
+
+
+// subtítulo
+ctx.font = `${styleSub} ${sizeSub}px Roboto`;
+let lineHeightSub = sizeSub * 1.2;
+subInfo.lines.forEach(line => {
+  ctx.fillText(line, paddingX, baseY);
+  baseY += lineHeightSub;
+});
+
+baseY += gap;
+
+// título
+ctx.font = `${styleMain} ${sizeMain}px Georgia`;
+let lineHeightMain = sizeMain * 1.2;
+titleInfo.lines.forEach(line => {
+  ctx.fillText(line, paddingX, baseY);
+  baseY += lineHeightMain;
+});
+
+
+
+}
+
+function buildFontStyle(boldId, italicId) {
+  const isBold = document.getElementById(boldId).classList.contains("active");
+  const isItalic = document.getElementById(italicId).classList.contains("active");
+
+  const style = isItalic ? "italic" : "normal";
+  const weight = isBold ? "bold" : "normal";
+
+  return `${style} ${weight}`;
+}
+
+
+document.getElementById("mainBold").onclick = () => toggleStyle("mainBold");
+document.getElementById("mainItalic").onclick = () => toggleStyle("mainItalic");
+document.getElementById("subBold").onclick = () => toggleStyle("subBold");
+document.getElementById("subItalic").onclick = () => toggleStyle("subItalic");
+
+function toggleStyle(id) {
+  document.getElementById(id).classList.toggle("active");
+  render();
+}
+
+document.querySelectorAll("input").forEach(el => el.addEventListener("input", render));
+
+// Image input + drag & drop support
+const imageInputEl = document.getElementById("imageInput");
+const dropZone = document.getElementById("imageDropZone");
+
+function handleFileAsImage(file){
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  img = new Image();
+  img.src = url;
+  img.onload = () => {
+    render();
+    if(dropZone){
+      dropZone.classList.add('has-image');
+      dropZone.style.backgroundImage = `url(${url})`;
+      dropZone.innerHTML = `<div class="dz-ok">Cargada</div><div class="dz-preview"><img src="${url}"></div>`;
+    }
+    showFeedback('Imagen cargada correctamente', 'success', 2000);
+  };
+}
+
+imageInputEl.addEventListener("change", e => {
+  const file = e.target.files[0];
+  handleFileAsImage(file);
+});
+
+if(dropZone){
+  dropZone.addEventListener('click', () => imageInputEl.click());
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', e => { e.preventDefault(); dropZone.classList.remove('dragover'); });
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    handleFileAsImage(file);
+  });
+}
+
+document.getElementById("exportBtn").onclick = () => {
+  if (!img) {
+    showFeedback("Cargá una imagen para exportar la portada", 'error', 2500);
+    return;
+  }
+  try {
+    const link = document.createElement("a");
+    link.download = "portada_1200x800.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    showFeedback("Portada exportada correctamente", 'success', 2500);
+  } catch(e) {
+    showFeedback("Error al exportar la portada", 'error', 2500);
+  }
+};
+
+
+</script>
+
+</body>
+</html>

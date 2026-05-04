@@ -537,64 +537,11 @@ button:hover {
   transition: box-shadow 0.2s, transform 0.2s, scale 0.2s;
 }
 
-.block { position: relative; }
-
-.block .btn-delete {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1px solid #eee;
-  background: #fff;
-  color: var(--accent);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.block:hover {
-  box-shadow: 0 4px 16px #00000055;
-  scale: 1.01;
-}
-
-.drag-handle {
-  padding: 8px 12px;
-  cursor: grab;
-  font-weight: 600;
-  color: #fff;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  background: var(--accent);
-}
+.block:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 
 .block-content {
-  padding: 12px;
+  padding: 10px 12px 12px;
   color: var(--text-main);
-}
-
-.block-controls {
-  text-align: right;
-  margin-top: 6px;
-  color: var(--text-secondary);
-}
-
-/* Rich text editable */
-.rich-text-block {
-  min-height: 40px;
-  padding: 8px;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  background: var(--bg-alt);
-  color: var(--text-main);
-}
-
-.rich-text-block:empty::before {
-  content: attr(data-placeholder);
-  color: var(--text-placeholder);
-  font-style: italic;
 }
 
 input[type="text"], input[type="date"], textarea {
@@ -608,6 +555,124 @@ textarea { resize: vertical; }
 /* ===============================
    DRAG & DROP
 ================================= */
+/* Bloque header con grip + select + orden + borrar */
+.block-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.block-header select {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  padding: 5px 28px 5px 8px;
+}
+
+.block-order-btns {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.btn-order {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-alt);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-order:disabled { opacity: 0.25; cursor: not-allowed; }
+.btn-order:not(:disabled):hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.btn-block-delete {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid rgba(239,68,68,0.3);
+  background: rgba(239,68,68,0.08);
+  color: #ef4444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+.btn-block-delete:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); }
+
+/* Drag handle compacto */
+.drag-handle {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.drag-handle:active { cursor: grabbing; }
+
+/* Textarea para bloques de texto */
+.block-textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: none;
+  overflow: hidden;
+  background: var(--bg-alt);
+  color: var(--text-main);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.block-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(46,56,99,0.15); }
+
+/* Botones full-width en editor-actions */
+.editor-actions .btn-full { grid-column: 1 / -1; }
+
+.editor-n3 .btn-danger {
+  background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08)) !important;
+  border-color: rgba(239,68,68,0.3) !important;
+  color: #fca5a5 !important;
+}
+.editor-n3 .btn-danger:hover {
+  background: linear-gradient(135deg, rgba(239,68,68,0.24), rgba(239,68,68,0.14)) !important;
+  border-color: rgba(239,68,68,0.5) !important;
+  color: #fecaca !important;
+}
+
+/* Feedback visual en botones toggle del canvas */
+#mainBold.active, #mainItalic.active, #subBold.active, #subItalic.active,
+#toggleGradient.active, #toggleText.active {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border: none !important;
+}
+#mainBold:not(.active), #mainItalic:not(.active), #subBold:not(.active), #subItalic:not(.active),
+#toggleGradient:not(.active), #toggleText:not(.active) {
+  background: var(--bg-alt) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--card-border) !important;
+}
+
 .block.dragging { opacity: 0.4; transform: scale(0.98); }
 
 .placeholder {
@@ -1052,9 +1117,18 @@ canvas {
       <div class="form-row" style="margin-top:12px; gap:10px;">
         <label style="flex:1; display:flex; flex-direction:column;">Gap:<input type="number" id="gap" value="40"></label>
         <label style="flex:1; display:flex; flex-direction:column;">Width:<input type="number" id="blockWidth" value="800"></label>
-        <label style="flex:1; display:flex; flex-direction:column;">Color:<input type="color" id="gradientColor" value="#000000"></label>
+        <label style="flex:1; display:flex; flex-direction:column;">Color:<input type="color" id="gradientColor" value="#2E3863"></label>
         <label style="flex:1; display:flex; flex-direction:column;">Padd. X:<input id="paddingX" type="number" value="60"></label>
         <label style="flex:1; display:flex; flex-direction:column;">Padd. Y:<input id="paddingY" type="number" value="0"></label>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button type="button" id="toggleGradient" class="active" onclick="toggleStyle('toggleGradient')" style="flex:1; padding:7px; font-size:13px;">
+          <i class="fa-solid fa-layer-group"></i> Degradado
+        </button>
+        <button type="button" id="toggleText" class="active" onclick="toggleStyle('toggleText')" style="flex:1; padding:7px; font-size:13px;">
+          <i class="fa-solid fa-font"></i> Texto
+        </button>
       </div>
 
     </div>
@@ -1091,32 +1165,21 @@ canvas {
       <i class="fa-solid fa-arrow-right-arrow-left"></i>
     </button>
 
-    <button
-      id="exportBtn"
-      class="button-editor"
-    >
+    <button id="exportBtn" class="button-editor">
       <i class="fa-regular fa-image"></i>
       Exportar Portada
     </button>
+
+    <button class="button-editor btn-full" onclick="openImportModal()">
+      <i class="fa-solid fa-file-import"></i>
+      Importar HTML
+    </button>
+
+    <button class="button-editor btn-full btn-danger" onclick="resetState()">
+      <i class="fa-solid fa-trash-can"></i>
+      Nueva nota / Limpiar
+    </button>
   </div>
-
-  <button
-    class="button-editor"
-    onclick="openImportModal()"
-    style="margin-top:12px; width:100%;"
-  >
-    <i class="fa-solid fa-file-import"></i>
-    Importar HTML
-  </button>
-
-  <button
-    class="button-editor"
-    onclick="resetState()"
-    style="margin-top:8px; width:100%; background:rgba(239,68,68,0.12); border-color:rgba(239,68,68,0.25); color:#fca5a5;"
-  >
-    <i class="fa-solid fa-trash-can"></i>
-    Nueva nota / Limpiar
-  </button>
 </div>
 
 
@@ -1249,46 +1312,67 @@ function addBlock() {
   updatePreview();
 }
 
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 400) + 'px';
+}
+
+function moveBlock(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= blocks.length) return;
+  [blocks[i], blocks[j]] = [blocks[j], blocks[i]];
+  renderBlocks();
+  updatePreview();
+}
+
 function renderBlocks() {
   const container = document.getElementById("blocks");
   container.innerHTML = "";
   blocks.forEach((b, i) => {
     const div = document.createElement("div");
     div.className = "block";
-    div.setAttribute("draggable", true);
     div.setAttribute("data-index", i);
 
-    div.addEventListener("dragstart", dragStart);
-    div.addEventListener("dragend", dragEnd);
-    div.addEventListener("dragover", dragOverBlock);
-    div.addEventListener("drop", dropBlock);
-
     div.innerHTML = `
-      <button class="btn-delete" onclick="deleteBlock(${i})" aria-label="Eliminar"><i class="fa-solid fa-x"></i></button>
-      <div class="drag-handle" style="background: ${blockColors[b.type] || '#e0e0e0'}">
-        ☰ Arrastrar (${b.type})
+      <div class="block-header">
+        <div class="drag-handle" style="background:${blockColors[b.type]||'#ccc'}">
+          <i class="fa-solid fa-grip-vertical" style="color:#fff; font-size:11px; pointer-events:none;"></i>
+        </div>
+        <select onchange="changeBlockType(${i}, this.value)">
+          <option value="text"    ${b.type==='text'?'selected':''}>Texto</option>
+          <option value="heading" ${b.type==='heading'?'selected':''}>Encabezado</option>
+          <option value="quote"   ${b.type==='quote'?'selected':''}>Cita</option>
+          <option value="image"   ${b.type==='image'?'selected':''}>Imagen (URL)</option>
+          <option value="button"  ${b.type==='button'?'selected':''}>Botón</option>
+          <option value="hr"      ${b.type==='hr'?'selected':''}>Separador</option>
+          <option value="ul"      ${b.type==='ul'?'selected':''}>Lista</option>
+          <option value="ol"      ${b.type==='ol'?'selected':''}>Lista numerada</option>
+        </select>
+        <div class="block-order-btns">
+          <button type="button" class="btn-order" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Subir">↑</button>
+          <button type="button" class="btn-order" onclick="moveBlock(${i},1)" ${i===blocks.length-1?'disabled':''} title="Bajar">↓</button>
+          <button type="button" class="btn-block-delete" onclick="deleteBlock(${i})" title="Eliminar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
       </div>
       <div class="block-content">
-        <select onchange="changeBlockType(${i}, this.value)">
-            <option value="text" ${b.type==='text'?'selected':''}>Texto</option>
-            <option value="heading" ${b.type==='heading'?'selected':''}>Encabezado</option>
-            <option value="quote" ${b.type==='quote'?'selected':''}>Cita</option>
-            <option value="image" ${b.type==='image'?'selected':''}>Imagen</option>
-            <option value="button" ${b.type==='button'?'selected':''}>Botón</option>
-            <option value="hr" ${b.type==='hr'?'selected':''}>Separador</option>
-            <option value="ul" ${b.type==='ul'?'selected':''}>Lista desordenada</option>
-            <option value="ol" ${b.type==='ol'?'selected':''}>Lista ordenada</option>
-
-        </select>
-
         ${renderBlockInput(b, i)}
-
-        <div class="block-controls"></div>
       </div>
     `;
 
+    // Drag solo desde el handle (no interfiere con selección de texto)
+    const handle = div.querySelector('.drag-handle');
+    handle.addEventListener('mousedown', () => div.setAttribute('draggable','true'));
+    div.addEventListener('mouseup',   () => div.setAttribute('draggable','false'));
+    div.addEventListener('dragstart', dragStart);
+    div.addEventListener('dragend',   dragEnd);
+    div.addEventListener('dragover',  dragOverBlock);
+    div.addEventListener('drop',      dropBlock);
+
     container.appendChild(div);
   });
+
+  // Auto-resize todas las textareas tras renderizar
+  setTimeout(() => document.querySelectorAll('.block-textarea').forEach(autoResize), 0);
 }
 
 function parseMarkdown(text) {
@@ -1315,18 +1399,19 @@ function updateButtonIcon(i, v){
 }
 
 function renderBlockInput(block, index) {
-
   if(block.type === 'text' || block.type === 'heading' || block.type === 'quote') {
+    const ph = block.type==='text' ? 'Escribe tu texto...'
+             : block.type==='heading' ? 'Escribe el encabezado...'
+             : 'Escribe la cita...';
+    const safe = (block.content || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return `
-      <div contenteditable="true" class="rich-text-block"
-        data-placeholder="${block.type==='text'?'Escribe tu texto...':block.type==='heading'?'Escribe el encabezado...':'Escribe la cita...'}"
-        oninput="updateBlock(${index}, this.innerText)">${block.content}</div>
-
+      <textarea class="block-textarea" rows="3" placeholder="${ph}"
+        oninput="updateBlock(${index}, this.value); autoResize(this);">${safe}</textarea>
       ${block.type==='heading' ? `
-        <select onchange="changeBlockSubtype(${index}, this.value)">
-          <option value="h1" ${block.subtype==='h1'?'selected':''}>H1</option>
-          <option value="h2" ${block.subtype==='h2'?'selected':''}>H2</option>
-          <option value="h3" ${block.subtype==='h3'?'selected':''}>H3</option>
+        <select onchange="changeBlockSubtype(${index}, this.value)" style="margin-top:6px;">
+          <option value="h1" ${block.subtype==='h1'?'selected':''}>H1 — Grande</option>
+          <option value="h2" ${block.subtype==='h2'?'selected':''}>H2 — Mediano</option>
+          <option value="h3" ${block.subtype==='h3'?'selected':''}>H3 — Sección</option>
         </select>
       ` : ''}
     `;
@@ -2854,10 +2939,12 @@ function saveState() {
         gradientColor:document.getElementById('gradientColor').value,
         paddingX:     document.getElementById('paddingX').value,
         paddingY:     document.getElementById('paddingY').value,
-        mainBold:  document.getElementById('mainBold').classList.contains('active'),
-        mainItalic:document.getElementById('mainItalic').classList.contains('active'),
-        subBold:   document.getElementById('subBold').classList.contains('active'),
-        subItalic: document.getElementById('subItalic').classList.contains('active'),
+        mainBold:       document.getElementById('mainBold').classList.contains('active'),
+        mainItalic:     document.getElementById('mainItalic').classList.contains('active'),
+        subBold:        document.getElementById('subBold').classList.contains('active'),
+        subItalic:      document.getElementById('subItalic').classList.contains('active'),
+        toggleGradient: document.getElementById('toggleGradient').classList.contains('active'),
+        toggleText:     document.getElementById('toggleText').classList.contains('active'),
       },
       canvasImage: imageDataUrl
     };
@@ -2891,7 +2978,7 @@ function loadState() {
       const c = s.canvas;
       ['textMain','textSub','fontSizeMain','fontSizeSub','gap','blockWidth','gradientColor','paddingX','paddingY']
         .forEach(id => { if (c[id] !== undefined) document.getElementById(id).value = c[id]; });
-      ['mainBold','mainItalic','subBold','subItalic']
+      ['mainBold','mainItalic','subBold','subItalic','toggleGradient','toggleText']
         .forEach(id => { document.getElementById(id).classList.toggle('active', !!c[id]); });
     }
 
@@ -2948,6 +3035,8 @@ function resetState() {
   document.getElementById('mainItalic').classList.add('active');
   document.getElementById('subBold').classList.remove('active');
   document.getElementById('subItalic').classList.remove('active');
+  document.getElementById('toggleGradient').classList.add('active');
+  document.getElementById('toggleText').classList.add('active');
 
   const dz = document.getElementById('imageDropZone');
   if (dz) {
@@ -3047,47 +3136,41 @@ const paddingY = parseInt(document.getElementById("paddingY").value);
   const iy = (H - img.height * scale) / 2;
   ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
 
-  // gradient
-  const color = document.getElementById("gradientColor").value;
-  const grad = ctx.createLinearGradient(0, H, 0, 0);
-  grad.addColorStop(0, color + "E0");
-  grad.addColorStop(0.4, color + "80");
-  grad.addColorStop(1, color + "00");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
+  const showGradient = document.getElementById('toggleGradient').classList.contains('active');
+  const showText     = document.getElementById('toggleText').classList.contains('active');
 
-  // medir textos
-  ctx.fillStyle = "white";
+  // degradado opcional
+  if (showGradient) {
+    const color = document.getElementById("gradientColor").value;
+    const grad = ctx.createLinearGradient(0, H, 0, 0);
+    grad.addColorStop(0,   color + "E0");
+    grad.addColorStop(0.4, color + "80");
+    grad.addColorStop(1,   color + "00");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
 
-  ctx.font = `${styleMain} ${sizeMain}px Georgia`;
+  // texto opcional
+  if (showText) {
+    ctx.fillStyle = "white";
+    ctx.font = `${styleMain} ${sizeMain}px Georgia`;
+    const titleInfo = wrapTextGetLines(ctx, main, blockWidth);
+    ctx.font = `${styleSub} ${sizeSub}px Roboto`;
+    const subInfo = wrapTextGetLines(ctx, sub, blockWidth);
 
-  const titleInfo = wrapTextGetLines(ctx, main, blockWidth);
+    const totalTextHeight = subInfo.height + gap + titleInfo.height;
+    let baseY = H - paddingY - totalTextHeight;
 
-  ctx.font = `${styleSub} ${sizeSub}px Roboto`;
-  const subInfo = wrapTextGetLines(ctx, sub, blockWidth);
+    ctx.font = `${styleSub} ${sizeSub}px Roboto`;
+    let lineHeightSub = sizeSub * 1.2;
+    subInfo.lines.forEach(line => { ctx.fillText(line, paddingX, baseY); baseY += lineHeightSub; });
 
-  // layout dinámico
-const totalTextHeight = subInfo.height + gap + titleInfo.height;
-let baseY = H - paddingY - totalTextHeight;
+    baseY += gap;
 
-
-// subtítulo
-ctx.font = `${styleSub} ${sizeSub}px Roboto`;
-let lineHeightSub = sizeSub * 1.2;
-subInfo.lines.forEach(line => {
-  ctx.fillText(line, paddingX, baseY);
-  baseY += lineHeightSub;
-});
-
-baseY += gap;
-
-// título
-ctx.font = `${styleMain} ${sizeMain}px Georgia`;
-let lineHeightMain = sizeMain * 1.2;
-titleInfo.lines.forEach(line => {
-  ctx.fillText(line, paddingX, baseY);
-  baseY += lineHeightMain;
-});
+    ctx.font = `${styleMain} ${sizeMain}px Georgia`;
+    let lineHeightMain = sizeMain * 1.2;
+    titleInfo.lines.forEach(line => { ctx.fillText(line, paddingX, baseY); baseY += lineHeightMain; });
+  }
 
   saveState();
 }

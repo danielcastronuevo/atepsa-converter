@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
 <!-- Tipografías de marca (Source Sans 3 + JetBrains Mono) -->
-<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..900;1,600..800&family=JetBrains+Mono:wght@400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..900;1,600..800&family=JetBrains+Mono:wght@400..800&family=Montserrat:wght@700;800;900&family=Oswald:wght@500;600;700&family=Playfair+Display:wght@700;800;900&family=Roboto+Slab:wght@600;700;800&family=Merriweather:wght@700;900&family=Archivo+Black&display=swap" rel="stylesheet">
 
 <!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -888,6 +888,15 @@ canvas {
   display: flex; align-items: center; gap: 5px;
   font-size: 13px; cursor: pointer; margin-left: auto;
 }
+.cv-label-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 7px;
+}
+.cv-size {
+  width: 58px; padding: 4px 6px; font-size: 12px;
+  border: 1px solid var(--card-border); border-radius: 6px;
+  background: var(--bg-alt); color: var(--text-main);
+}
+.cv-label-row .cv-size { margin-left: 4px; }
 .cv-custom-summary {
   cursor: pointer;
   font-size: 13px;
@@ -1172,7 +1181,6 @@ canvas {
         <div class="cv-seg">
           <button type="button" class="cv-seg-btn active" id="cvTexRadar" onclick="setCvTexture('radar')">Radar</button>
           <button type="button" class="cv-seg-btn"        id="cvTexSeal"  onclick="setCvTexture('seal')">Sello</button>
-          <button type="button" class="cv-seg-btn"        id="cvTexLogo"  onclick="setCvTexture('logo')">Logo</button>
           <button type="button" class="cv-seg-btn"        id="cvTexNone"  onclick="setCvTexture('none')">Ninguna</button>
         </div>
       </div>
@@ -1183,39 +1191,62 @@ canvas {
         <input type="file" id="imageInput" accept="image/*,.pdf" style="display:none">
       </div>
 
-            <div class="cv-section">
+      <div class="cv-section">
         <div class="cv-label">Logo de arriba</div>
         <select id="cvTopLogo" onchange="setCvState('topLogo', this.value)">
-          <option value="sello-color">Sello color</option>
-          <option value="imagotipo-blanco" selected>Imagotipo blanco</option>
+          <option value="sello-color" selected>Sello color</option>
+          <option value="imagotipo-blanco">Imagotipo blanco</option>
           <option value="logotipo-blanco">Logotipo blanco</option>
         </select>
       </div>
 
       <div class="cv-section">
-        <div class="cv-label">Eyebrow</div>
+        <div class="cv-label-row">
+          <div class="cv-label" style="margin:0;">Eyebrow</div>
+          <input type="number" class="cv-size" id="cvEyebrowSize" min="8" max="48" value="15"
+                 title="Tama&#241;o" oninput="setCvState('eyebrowSize', +this.value)">
+        </div>
         <input type="text" id="cvEyebrow" value="ACTUALIDAD" autocomplete="off"
                oninput="setCvState('eyebrow', this.value)">
       </div>
 
       <div class="cv-section">
-        <div class="cv-label">T&#237;tulo</div>
+        <div class="cv-label-row">
+          <div class="cv-label" style="margin:0;">T&#237;tulo</div>
+          <input type="number" class="cv-size" id="cvTitleSize" min="20" max="110" value="52"
+                 title="Tama&#241;o" oninput="setCvState('titleSize', +this.value)">
+        </div>
+        <select id="cvTitleFont" style="margin-bottom:8px;" onchange="setCvState('titleFont', this.value)">
+          <option value="source" selected>Source Sans (actual)</option>
+          <option value="montserrat">Montserrat</option>
+          <option value="archivo">Archivo Black</option>
+          <option value="oswald">Oswald (condensada)</option>
+          <option value="playfair">Playfair (serif)</option>
+          <option value="slab">Roboto Slab</option>
+          <option value="merri">Merriweather (serif)</option>
+        </select>
         <textarea id="cvTitle" rows="3" placeholder="T&#237;tulo del comunicado&#8230;"
                   oninput="setCvState('title', this.value); autoResize(this);"
                   style="width:100%; min-height:72px; resize:none; overflow:hidden;"></textarea>
       </div>
 
       <div class="cv-section">
-        <div class="cv-label">Pie</div>
+        <div class="cv-label-row">
+          <div class="cv-label" style="margin:0;">Pie</div>
+          <input type="number" class="cv-size" id="cvFooterSize" min="8" max="40" value="14"
+                 title="Tama&#241;o" oninput="setCvState('footerSize', +this.value)">
+        </div>
         <input type="text" id="cvFooter" autocomplete="off"
                oninput="setCvState('footer', this.value)">
       </div>
 
       <div class="cv-section">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <div class="cv-label-row">
           <div class="cv-label" style="margin:0;">P&#225;ginas del PDF</div>
+          <input type="number" class="cv-size" id="cvPagesSize" min="8" max="40" value="13"
+                 title="Tama&#241;o" oninput="setCvState('pagesSize', +this.value)">
           <label class="cv-check">
-            <input type="checkbox" id="cvPagesShow" onchange="setCvState('pagesShow', this.checked)">
+            <input type="checkbox" id="cvPagesShow" checked onchange="setCvState('pagesShow', this.checked)">
             Mostrar
           </label>
         </div>
@@ -1240,13 +1271,16 @@ canvas {
           <span class="cv-custom-hint">Solo esta sesi&#243;n &#183; se descarta al limpiar</span>
         </summary>
         <div class="cv-custom-grid">
-          <label>Tinta<input type="color" id="cvInk"        oninput="setCustomColor('ink',this.value)"></label>
-          <label>Acento<input type="color" id="cvAccent"     oninput="setCustomColor('accent',this.value)"></label>
-          <label>Pie<input type="color" id="cvFootAccent"   oninput="setCustomColor('footAccent',this.value)"></label>
-          <label>Fondo<input type="color" id="cvBg"          oninput="setCustomColor('bg',this.value)"></label>
+          <label>Tinta<input type="color" id="cvInk"     oninput="setCustomColor('ink',this.value)"></label>
+          <label>Acento<input type="color" id="cvAccent"  oninput="setCustomColor('accent',this.value)"></label>
+          <label>Barra lat.<input type="color" id="cvBand" oninput="setCustomColor('band',this.value)"></label>
+          <label>Fondo<input type="color" id="cvBg"       oninput="setCustomColor('bg',this.value)"></label>
           <label>Fondo der.<input type="color" id="cvBgRight" oninput="setCustomColor('bgRight',this.value)"></label>
           <button type="button" class="cv-reset-colors" onclick="resetCustomColors()">Restablecer colores</button>
         </div>
+        <p style="font-size:11px; opacity:0.6; margin:8px 0 0; line-height:1.4;">
+          <strong>Acento</strong> afecta eyebrow, p&#225;ginas y pie. <strong>Barra lat.</strong> es la franja vertical (full) o el divisor (split). <strong>Fondo der.</strong> solo aplica en split.
+        </p>
       </details>
 
     </div>
@@ -1394,28 +1428,47 @@ canvas {
 const STORAGE_KEY = 'atepsa_editor_v1';
 let saveTimeout = null;
 let imageDataUrl = null;
-let coverState = {
+const COVER_DEFAULTS = {
   layout:       'full',
-  theme:        'dark',
+  theme:        'light',
   texture:      'radar',
-  topLogo:      'imagotipo-blanco',
+  topLogo:      'sello-color',
+  titleFont:    'source',
   eyebrow:      'ACTUALIDAD',
-  title:        '',
+  title:        'Título de ejemplo',
   footer:       '',
-  pagesShow:    false,
+  eyebrowSize:  15,
+  titleSize:    52,
+  footerSize:   14,
+  pagesSize:    13,
+  pagesShow:    true,
   pagesCount:   1,
   sheetsGraphic: 1,
   customColors: null,
 };
+let coverState = Object.assign({}, COVER_DEFAULTS);
 
 const PALETTE = {
   navy: '#2E3863', navyDeep: '#232b4d', cyan: '#6CC4C7',
   cyanSoft: '#9ED6D8', blue: '#4B73AC', bg: '#F5F7FA', panel: '#E9EDF3',
 };
+// accent = unificado: eyebrow + páginas + pie. band = barra lateral / divisor.
 const THEME_COLORS = {
-  dark:  { ink: '#FFFFFF', accent: '#6CC4C7', footAccent: '#9ED6D8', bg: '#2E3863' },
-  light: { ink: '#2E3863', accent: '#4B73AC', footAccent: '#4B73AC', bg: '#F5F7FA' },
+  dark:  { ink: '#FFFFFF', accent: '#6CC4C7', bg: '#2E3863' },
+  light: { ink: '#2E3863', accent: '#4B73AC', bg: '#F5F7FA' },
 };
+
+// Fuentes de título disponibles. ls = letter-spacing, lh = line-height.
+const TITLE_FONTS = {
+  source:     { label: 'Source Sans (actual)', family: '"Source Sans 3", system-ui, sans-serif', weight: 800, ls: -1.1, lh: 1.07 },
+  montserrat: { label: 'Montserrat',           family: '"Montserrat", sans-serif',               weight: 800, ls: -1.0, lh: 1.08 },
+  archivo:    { label: 'Archivo Black',        family: '"Archivo Black", sans-serif',            weight: 400, ls: -0.8, lh: 1.06 },
+  oswald:     { label: 'Oswald (condensada)',  family: '"Oswald", sans-serif',                   weight: 600, ls: 0.3,  lh: 1.05 },
+  playfair:   { label: 'Playfair (serif)',     family: '"Playfair Display", serif',              weight: 800, ls: -0.3, lh: 1.06 },
+  slab:       { label: 'Roboto Slab',          family: '"Roboto Slab", serif',                   weight: 700, ls: -0.4, lh: 1.08 },
+  merri:      { label: 'Merriweather (serif)', family: '"Merriweather", serif',                  weight: 700, ls: -0.2, lh: 1.12 },
+};
+
 const LOGO_SRCS = {
   'sello-color':      'logos/atepsa-sello-color.png',
   'imagotipo-blanco': 'logos/atepsa-imagotipo-blanco.png',
@@ -1425,16 +1478,30 @@ const logoCache = {};
 
 function todayFooter() {
   const d = new Date();
-  const M = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-  return `ATEPSA · ${String(d.getDate()).padStart(2,'0')} ${M[d.getMonth()]} ${d.getFullYear()}`;
+  const M = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  return `ATEPSA · ${d.getDate()} DE ${M[d.getMonth()]} - ${d.getFullYear()}`;
 }
-coverState.footer = todayFooter();
+COVER_DEFAULTS.footer = todayFooter();
+coverState.footer = COVER_DEFAULTS.footer;
 
 function preloadLogos() {
   Object.entries(LOGO_SRCS).forEach(([id, src]) => {
     const i = new Image(); i.src = src; logoCache[id] = i;
     i.onload = () => render();
   });
+}
+
+// Fuerza la carga de las fuentes para que el canvas las pueda usar (Google Fonts
+// carga on-demand y el canvas no dispara esa carga por sí solo).
+function preloadFonts() {
+  if (!document.fonts || !document.fonts.load) return;
+  const specs = ['600 15px "JetBrains Mono"', '800 52px "Source Sans 3"'];
+  Object.values(TITLE_FONTS).forEach(f => {
+    const fam = f.family.split(',')[0];
+    specs.push(`${f.weight} 52px ${fam}`);
+  });
+  Promise.all(specs.map(s => document.fonts.load(s).catch(() => {})))
+    .then(() => render());
 }
 
 
@@ -3101,9 +3168,14 @@ function saveState() {
         theme:         coverState.theme,
         texture:       coverState.texture,
         topLogo:       coverState.topLogo,
+        titleFont:     coverState.titleFont,
         eyebrow:       coverState.eyebrow,
         title:         coverState.title,
         footer:        coverState.footer,
+        eyebrowSize:   coverState.eyebrowSize,
+        titleSize:     coverState.titleSize,
+        footerSize:    coverState.footerSize,
+        pagesSize:     coverState.pagesSize,
         pagesShow:     coverState.pagesShow,
         pagesCount:    coverState.pagesCount,
         sheetsGraphic: coverState.sheetsGraphic,
@@ -3138,10 +3210,13 @@ function loadState() {
 
     if (s.canvas) {
       const c = s.canvas;
-      ['layout','theme','texture','topLogo','eyebrow','title','footer',
+      ['layout','theme','texture','topLogo','titleFont','eyebrow','title','footer',
+       'eyebrowSize','titleSize','footerSize','pagesSize',
        'pagesShow','pagesCount','sheetsGraphic'].forEach(k => {
         if (c[k] !== undefined) coverState[k] = c[k];
       });
+      // 'logo' fue eliminado como textura: migrar a radar
+      if (coverState.texture === 'logo') coverState.texture = 'radar';
       coverState.customColors = null;
       syncCoverUI();
     }
@@ -3186,13 +3261,7 @@ function resetState() {
   document.getElementById('article-imagen').value      = '';
   document.getElementById('download-title').value      = 'Zona de Descargas';
   document.getElementById('download-description').value= 'Descargá el comunicado completo en formato PDF.';
-  coverState = {
-    layout: 'full', theme: 'dark', texture: 'radar',
-    topLogo: 'imagotipo-blanco', eyebrow: 'ACTUALIDAD',
-    title: '', footer: todayFooter(),
-    pagesShow: false, pagesCount: 1, sheetsGraphic: 1,
-    customColors: null,
-  };
+  coverState = Object.assign({}, COVER_DEFAULTS, { footer: todayFooter(), customColors: null });
   syncCoverUI();
 
   const dz = document.getElementById('imageDropZone');
@@ -3217,6 +3286,7 @@ function resetState() {
   });
 
 preloadLogos();
+preloadFonts();
 document.fonts.ready.then(() => render());
 loadState();
 renderBlocks();
@@ -3260,14 +3330,14 @@ function wrapTextGetLines(ctx, text, maxWidth) {
    COVER — state management
 =================================================== */
 function getColors() {
-  const base = THEME_COLORS[coverState.theme] || THEME_COLORS.dark;
+  const base = THEME_COLORS[coverState.theme] || THEME_COLORS.light;
   const c = coverState.customColors;
   return {
-    ink:        (c && c.ink)        || base.ink,
-    accent:     (c && c.accent)     || base.accent,
-    footAccent: (c && c.footAccent) || base.footAccent,
-    bg:         (c && c.bg)         || base.bg,
-    bgRight:    (c && c.bgRight)    || PALETTE.panel,
+    ink:     (c && c.ink)     || base.ink,
+    accent:  (c && c.accent)  || base.accent,   // eyebrow + páginas + pie
+    band:    (c && c.band)    || PALETTE.cyan,   // barra lateral / divisor
+    bg:      (c && c.bg)      || base.bg,
+    bgRight: (c && c.bgRight) || PALETTE.panel,
   };
 }
 
@@ -3290,7 +3360,7 @@ function setCvTheme(theme) {
 
 function setCvTexture(tex) {
   coverState.texture = tex;
-  ['Radar','Seal','Logo','None'].forEach(t => {
+  ['Radar','Seal','None'].forEach(t => {
     const el = document.getElementById('cvTex' + t);
     if (el) el.classList.toggle('active', tex === t.toLowerCase());
   });
@@ -3310,12 +3380,12 @@ function resetCustomColors() {
 }
 
 function syncColorPickers() {
-  const { ink, accent, footAccent, bg, bgRight } = getColors();
-  document.getElementById('cvInk').value        = ink;
-  document.getElementById('cvAccent').value      = accent;
-  document.getElementById('cvFootAccent').value  = footAccent;
-  document.getElementById('cvBg').value          = bg;
-  document.getElementById('cvBgRight').value     = bgRight;
+  const { ink, accent, band, bg, bgRight } = getColors();
+  document.getElementById('cvInk').value     = ink;
+  document.getElementById('cvAccent').value  = accent;
+  document.getElementById('cvBand').value    = band;
+  document.getElementById('cvBg').value      = bg;
+  document.getElementById('cvBgRight').value = bgRight;
 }
 
 function syncCoverUI() {
@@ -3324,15 +3394,20 @@ function syncCoverUI() {
   document.getElementById('cvLayoutSplit').classList.toggle('active', cs.layout === 'split');
   document.getElementById('cvThemeDark').classList.toggle('active',  cs.theme === 'dark');
   document.getElementById('cvThemeLight').classList.toggle('active', cs.theme === 'light');
-  ['radar','seal','logo','none'].forEach(t => {
+  ['radar','seal','none'].forEach(t => {
     const el = document.getElementById('cvTex' + t.charAt(0).toUpperCase() + t.slice(1));
     if (el) el.classList.toggle('active', cs.texture === t);
   });
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
   setVal('cvTopLogo',       cs.topLogo);
+  setVal('cvTitleFont',     cs.titleFont);
   setVal('cvEyebrow',       cs.eyebrow);
   setVal('cvTitle',         cs.title);
   setVal('cvFooter',        cs.footer);
+  setVal('cvEyebrowSize',   cs.eyebrowSize);
+  setVal('cvTitleSize',     cs.titleSize);
+  setVal('cvFooterSize',    cs.footerSize);
+  setVal('cvPagesSize',     cs.pagesSize);
   setVal('cvPagesCount',    cs.pagesCount);
   setVal('cvSheetsGraphic', cs.sheetsGraphic);
   const chk = document.getElementById('cvPagesShow');
@@ -3355,17 +3430,12 @@ function drawRadarTexture(cx, cy, dark, clip) {
   if (clip) { ctx.beginPath(); ctx.rect(clip.x, clip.y, clip.w, clip.h); ctx.clip(); }
   const color = dark ? 'rgba(108,196,199,0.12)' : 'rgba(75,115,172,0.09)';
   ctx.lineWidth = 1;
+  ctx.strokeStyle = color;
   for (let r = 1; r < 1800; r += 72) {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = color;
     ctx.stroke();
   }
-  const dotX = (clip ? clip.x : 0) + 54, dotY = 720 - 54;
-  ctx.beginPath(); ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = PALETTE.cyan; ctx.fill();
-  ctx.beginPath(); ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(108,196,199,0.25)'; ctx.lineWidth = 6; ctx.stroke();
   ctx.restore();
 }
 
@@ -3379,53 +3449,64 @@ function drawSealTexture(logoId, dark, offsetX) {
   ctx.restore();
 }
 
-function drawKicker(x, y, label, color) {
+// Devuelve la altura ocupada por el eyebrow (para calcular el gap al título).
+function drawKicker(x, y, label, color, size) {
+  const fs = size || 15;
+  const barW = Math.round(fs * 2.5);
   ctx.fillStyle = color;
   ctx.beginPath();
-  const ry = y - 2;
-  if (ctx.roundRect) { ctx.roundRect(x, ry, 38, 4, 2); } else { ctx.rect(x, ry, 38, 4); }
+  const barH = 4, ry = y - barH / 2 - fs * 0.18;
+  if (ctx.roundRect) { ctx.roundRect(x, ry, barW, barH, 2); } else { ctx.rect(x, ry, barW, barH); }
   ctx.fill();
   ctx.save();
   ctx.fillStyle = color;
-  ctx.font = '600 15px "JetBrains Mono", monospace';
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '3.5px';
-  ctx.fillText((label || '').toUpperCase(), x + 52, y + 2);
+  ctx.font = `600 ${fs}px "JetBrains Mono", monospace`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (fs * 0.23).toFixed(1) + 'px';
+  ctx.textBaseline = 'middle';
+  ctx.fillText((label || '').toUpperCase(), x + barW + 14, y);
+  ctx.textBaseline = 'alphabetic';
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.restore();
-  return 18;
+  return fs;
 }
 
-function drawWrappedTitle(x, y, maxW, text, color, fontSize) {
+function drawWrappedTitle(x, y, maxW, text, color, fontSize, fontKey) {
+  const f = TITLE_FONTS[fontKey] || TITLE_FONTS.source;
   ctx.save();
   ctx.fillStyle = color;
-  ctx.font = `800 ${fontSize}px "Source Sans 3", system-ui, sans-serif`;
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '-1.1px';
-  const lineH = fontSize * 1.07;
+  ctx.font = `${f.weight} ${fontSize}px ${f.family}`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = f.ls + 'px';
+  const lineH = fontSize * f.lh;
+  ctx.textBaseline = 'alphabetic';
   (wrapTextGetLines(ctx, text || '', maxW).lines).forEach(line => {
     ctx.fillText(line.trim(), x, y); y += lineH;
   });
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.restore();
-  return y;
+  return y - lineH; // baseline de la última línea
 }
 
-function drawPagesRow(x, y, count, accent, footAccent) {
+function drawPagesRow(x, y, count, accent, size) {
+  const fs = size || 13;
   ctx.fillStyle = accent;
   ctx.fillRect(x, y - 1, 22, 2);
   ctx.save();
-  ctx.fillStyle = footAccent;
-  ctx.font = '600 13px "JetBrains Mono", monospace';
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '1.6px';
-  ctx.fillText(`PÁGINAS · ${count}`, x + 33, y + 3);
+  ctx.fillStyle = accent;
+  ctx.font = `600 ${fs}px "JetBrains Mono", monospace`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (fs * 0.12).toFixed(1) + 'px';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`PÁGINAS · ${count}`, x + 33, y);
+  ctx.textBaseline = 'alphabetic';
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.restore();
 }
 
-function drawFooterText(x, y, text, color) {
+function drawFooterText(x, y, text, color, size) {
+  const fs = size || 14;
   ctx.save();
   ctx.fillStyle = color;
-  ctx.font = '600 13.5px "JetBrains Mono", monospace';
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '1.5px';
+  ctx.font = `600 ${fs}px "JetBrains Mono", monospace`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (fs * 0.11).toFixed(1) + 'px';
   ctx.fillText(text, x, y);
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   ctx.restore();
@@ -3488,10 +3569,6 @@ function applyTexture(cs, dark, clip) {
     if (clip) { ctx.save(); ctx.beginPath(); ctx.rect(clip.x, clip.y, clip.w, clip.h); ctx.clip(); }
     drawSealTexture('sello-color', dark, clip ? clip.x : 0);
     if (clip) ctx.restore();
-  } else if (cs.texture === 'logo') {
-    if (clip) { ctx.save(); ctx.beginPath(); ctx.rect(clip.x, clip.y, clip.w, clip.h); ctx.clip(); }
-    drawSealTexture(cs.topLogo, dark, clip ? clip.x : 0);
-    if (clip) ctx.restore();
   }
 }
 
@@ -3503,9 +3580,26 @@ function render() {
   else renderSeven();
 }
 
+// Dibuja el bloque de texto (eyebrow + título + páginas) con espaciado balanceado.
+function drawTextBlock(tx, eyebrowY, tw, cs, accent, ink) {
+  drawKicker(tx, eyebrowY, cs.eyebrow, accent, cs.eyebrowSize);
+
+  // gap generoso entre eyebrow y título (antes quedaba muy pegado)
+  const gapEyebrowTitle = 42;
+  const titleTop      = eyebrowY + cs.eyebrowSize / 2 + gapEyebrowTitle;
+  const firstBaseline = titleTop + cs.titleSize * 0.74;
+  const lastBaseline  = drawWrappedTitle(tx, firstBaseline, tw, cs.title, ink, cs.titleSize, cs.titleFont);
+
+  if (cs.pagesShow) {
+    const gapTitlePages = 36;
+    const pagesY = lastBaseline + cs.titleSize * 0.24 + gapTitlePages + cs.pagesSize / 2;
+    drawPagesRow(tx, pagesY, cs.pagesCount, accent, cs.pagesSize);
+  }
+}
+
 function renderSeven() {
   const W = 1280, H = 720, cs = coverState;
-  const { ink, accent, footAccent, bg } = getColors();
+  const { ink, accent, band, bg } = getColors();
   const dark = cs.theme === 'dark';
 
   ctx.clearRect(0, 0, W, H);
@@ -3513,15 +3607,14 @@ function renderSeven() {
 
   applyTexture(cs, dark, null);
 
-  // Cyan band
-  ctx.fillStyle = PALETTE.cyan; ctx.fillRect(0, 0, 14, H);
+  // Barra lateral
+  ctx.fillStyle = band; ctx.fillRect(0, 0, 14, H);
 
-  // Document
+  // Documento
   const docW = cs.sheetsGraphic > 1 ? 420 : 458;
   const docH = Math.round(docW * 1118 / 788);
   if (cs.sheetsGraphic > 1) {
-    const ch = Math.round(docW * 1118 / 788);
-    const cx = W - 86 - docW, cy = Math.round((H - ch - 26) / 2);
+    const cx = W - 86 - docW, cy = Math.round((H - docH - 26) / 2);
     drawStackDoc(cs.sheetsGraphic, cx, cy, docW, dark);
   } else {
     drawDocCard(W - 72 - docW, Math.round((H - docH) / 2), docW, docH, dark);
@@ -3530,57 +3623,49 @@ function renderSeven() {
   // Logo
   drawLogoImg(cs.topLogo, 86, 84, 58);
 
-  // Text block: x=86, y=208
-  const tx = 86, ty = 208, tw = 600;
-  const kh = drawKicker(tx, ty, cs.eyebrow, accent);
-  let ny = drawWrappedTitle(tx, ty + kh + 24, tw, cs.title, ink, 52);
-  if (cs.pagesShow) drawPagesRow(tx, ny + 20, cs.pagesCount, accent, footAccent);
+  // Bloque de texto
+  drawTextBlock(86, 200, 600, cs, accent, ink);
 
-  drawFooterText(86, H - 56, cs.footer, footAccent);
+  drawFooterText(86, H - 56, cs.footer, accent, cs.footerSize);
   saveState();
 }
 
 function renderSevenSplit() {
   const W = 1280, H = 720, cs = coverState;
-  const { ink, accent, footAccent, bg, bgRight } = getColors();
+  const { ink, accent, band, bg, bgRight } = getColors();
   const dark = cs.theme === 'dark';
   const sx = 668; // splitX
 
   ctx.clearRect(0, 0, W, H);
 
-  // Left zone
+  // Zona izquierda
   ctx.fillStyle = bg; ctx.fillRect(0, 0, sx, H);
   applyTexture(cs, dark, { x: 0, y: 0, w: sx, h: H });
 
-  // Divider
-  ctx.fillStyle = PALETTE.cyan; ctx.fillRect(sx, 0, 3, H);
+  // Divisor
+  ctx.fillStyle = band; ctx.fillRect(sx, 0, 3, H);
 
-  // Right zone
+  // Zona derecha
   ctx.fillStyle = bgRight; ctx.fillRect(sx + 3, 0, W - sx - 3, H);
 
-  // Document in right zone
+  // Documento en zona derecha
   const rw = W - sx - 3;
   const docW = cs.sheetsGraphic > 1 ? 380 : 426;
   const docH = Math.round(docW * 1118 / 788);
   const docX = sx + 3 + Math.round((rw - docW) / 2);
   const docY = Math.round((H - docH) / 2);
   if (cs.sheetsGraphic > 1) {
-    const ch = Math.round(docW * 1118 / 788);
-    const stackX = sx + 3 + Math.round((rw - docW) / 2);
-    const stackY = Math.round((H - ch - 26) / 2);
-    drawStackDoc(cs.sheetsGraphic, stackX, stackY, docW, false);
+    const stackY = Math.round((H - docH - 26) / 2);
+    drawStackDoc(cs.sheetsGraphic, docX, stackY, docW, false);
   } else {
     drawDocCard(docX, docY, docW, docH, false);
   }
 
-  // Logo + text
+  // Logo + texto
   drawLogoImg(cs.topLogo, 64, 74, 58);
-  const tx = 64, ty = 212, tw = 540;
-  const kh = drawKicker(tx, ty, cs.eyebrow, accent);
-  let ny = drawWrappedTitle(tx, ty + kh + 24, tw, cs.title, ink, 50);
-  if (cs.pagesShow) drawPagesRow(tx, ny + 20, cs.pagesCount, accent, footAccent);
+  drawTextBlock(64, 204, 540, cs, accent, ink);
 
-  drawFooterText(64, H - 56, cs.footer, footAccent);
+  drawFooterText(64, H - 56, cs.footer, accent, cs.footerSize);
   saveState();
 }
 document.querySelectorAll("input").forEach(el => {

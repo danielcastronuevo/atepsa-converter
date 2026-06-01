@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -6,6 +6,9 @@
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<!-- Tipografías de marca (Source Sans 3 + JetBrains Mono) -->
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..900;1,600..800&family=JetBrains+Mono:wght@400..800&display=swap" rel="stylesheet">
 
 <!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -842,51 +845,86 @@ canvas {
 #fontSizeMain, #fontSizeSub { height: 40px; padding: 6px 8px; box-sizing: border-box; }
 #gradientColor { height: 40px; padding: 6px; box-sizing: border-box; border-radius: 8px; -webkit-appearance:none; appearance:none; background: var(--bg-alt); border:1px solid var(--card-border); }
 
-/* Ajustes específicos para editor-n2 */
-.editor-n2 #editor-img .form-row { margin-bottom: 4px; gap: 8px; align-items: center; }
-
-/* Selector de tipo de portada */
-.cover-tpl-wrap { margin-bottom: 14px; }
-.cover-tpl-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 8px;
+/* ==========================================
+   EDITOR DE PORTADA — controles cv-
+========================================== */
+.cv-section {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--card-border);
 }
-.cover-tpl-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-.tpl-pill {
-  padding: 5px 13px;
-  border-radius: 20px;
-  border: 2px solid transparent;
+.cv-section:last-child { border-bottom: none; margin-bottom: 0; }
+.cv-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+}
+.cv-seg {
+  display: flex;
+  gap: 3px;
   background: var(--bg-alt);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.cv-seg-btn {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
   color: var(--text-main);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
+  white-space: nowrap;
+}
+.cv-seg-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
+.cv-check {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; cursor: pointer; margin-left: auto;
+}
+.cv-custom-summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
+  user-select: none;
 }
-.tpl-pill::before {
-  content: '';
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--tpl-c, #555);
-  flex-shrink: 0;
-  display: inline-block;
+.cv-custom-hint {
+  font-size: 11px;
+  font-weight: 400;
+  opacity: 0.55;
+  margin-left: auto;
 }
-.tpl-pill:hover { border-color: var(--tpl-c, #555); }
-.tpl-pill.active {
-  background: var(--tpl-c, #555);
-  border-color: var(--tpl-c, #555);
-  color: #fff;
+.cv-custom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
 }
-.tpl-pill.active::before { background: rgba(255,255,255,0.55); }
+.cv-custom-grid label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.cv-custom-grid input[type="color"] { height: 34px; width: 100%; border-radius: 6px; }
+.cv-reset-colors {
+  grid-column: 1 / -1;
+  padding: 6px;
+  font-size: 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background: var(--bg-alt);
+  cursor: pointer;
+  color: var(--text-main);
+}
 
 .btn-active {
   background: var(--accent) !important;
@@ -1111,82 +1149,105 @@ canvas {
     </div>
       <div id="editor-img">
 
-      <h2 style="margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Configuración de portada</h2>
+      <h2 style="margin-bottom:16px;"><i class="fa-solid fa-sliders"></i> Configuración de portada</h2>
 
-      <div class="cover-tpl-wrap">
-        <span class="cover-tpl-label">Tipo de portada</span>
-        <div class="cover-tpl-pills">
-          <button type="button" class="tpl-pill active" data-tpl="split-actualidad"   style="--tpl-c:#1D2A4A" onclick="setTemplate('split-actualidad')">Actualidad</button>
-          <button type="button" class="tpl-pill"        data-tpl="split-convocatoria" style="--tpl-c:#1A3D2A" onclick="setTemplate('split-convocatoria')">Convocatoria</button>
-          <button type="button" class="tpl-pill"        data-tpl="split-urgente"      style="--tpl-c:#7A0000" onclick="setTemplate('split-urgente')">Urgente</button>
-          <button type="button" class="tpl-pill"        data-tpl="split-comunicado"   style="--tpl-c:#2D1B4E" onclick="setTemplate('split-comunicado')">Comunicado</button>
-          <button type="button" class="tpl-pill"        data-tpl="classic"            style="--tpl-c:#444444" onclick="setTemplate('classic')">Clásico</button>
-          <button type="button" class="tpl-pill"        data-tpl="custom"             style="--tpl-c:#E67E22" onclick="setTemplate('custom')"><i class="fa-solid fa-palette"></i> Custom</button>
+      <div class="cv-section">
+        <div class="cv-label">Layout</div>
+        <div class="cv-seg">
+          <button type="button" class="cv-seg-btn active" id="cvLayoutFull"  onclick="setCvLayout('full')">Full Color</button>
+          <button type="button" class="cv-seg-btn"        id="cvLayoutSplit" onclick="setCvLayout('split')">Split</button>
         </div>
       </div>
 
-      <label style="display:block; margin-bottom:4px;">Imagen:</label>
-      <div id="imageDropZone" class="image-dropzone">Arrastrá una imagen o PDF aquí, o hacé click para seleccionar</div>
-      <input type="file" id="imageInput" accept="image/*,.pdf" style="display:none">
-
-      <div style="display:flex; width:100%; flex-direction:column; margin-top:12px;">
-        <label id="labelTextSub" style="margin:0 0 4px;">Categoría:</label>
-        <input type="text" id="textSub" value="ACTUALIDAD" style="width:100%;" autocomplete="off">
-      </div>
-
-      <div style="display:flex; width:100%; flex-direction:column; margin-top:10px;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <label style="margin:0;">Título:</label>
-          <div id="classic-main-style" style="margin-left:auto; display:none; align-items:center; gap:8px;">
-            <button type="button" id="mainBold" class="active">B</button>
-            <button type="button" id="mainItalic" class="active">I</button>
-            <input type="number" id="fontSizeMain" value="73" style="width:86px;">
-          </div>
-        </div>
-        <input type="text" id="textMain" placeholder="Texto principal" style="width:100%; margin-top:4px;" autocomplete="off">
-      </div>
-
-      <div id="classic-sub-wrap" style="display:none; flex-direction:column; margin-top:10px; width:100%;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <label style="margin:0;">Texto 2 (estilo):</label>
-          <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
-            <button type="button" id="subBold">B</button>
-            <button type="button" id="subItalic">I</button>
-            <input type="number" id="fontSizeSub" value="35" style="width:86px;" autocomplete="off">
-          </div>
+      <div class="cv-section">
+        <div class="cv-label">Tema base</div>
+        <div class="cv-seg">
+          <button type="button" class="cv-seg-btn active" id="cvThemeDark"  onclick="setCvTheme('dark')">Oscuro</button>
+          <button type="button" class="cv-seg-btn"        id="cvThemeLight" onclick="setCvTheme('light')">Claro</button>
         </div>
       </div>
 
-
-
-
-
-      <div id="classic-layout-controls" style="display:none;">
-        <div class="form-row" style="margin-top:12px; gap:10px;">
-          <label style="flex:1; display:flex; flex-direction:column;">Gap:<input type="number" id="gap" value="40"></label>
-          <label style="flex:1; display:flex; flex-direction:column;">Width:<input type="number" id="blockWidth" value="800"></label>
-          <label style="flex:1; display:flex; flex-direction:column;">Color:<input type="color" id="gradientColor" value="#2E3863"></label>
-          <label style="flex:1; display:flex; flex-direction:column;">Padd. X:<input id="paddingX" type="number" value="60"></label>
-          <label style="flex:1; display:flex; flex-direction:column;">Padd. Y:<input id="paddingY" type="number" value="0"></label>
-        </div>
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button type="button" id="toggleGradient" class="active" onclick="toggleStyle('toggleGradient')" style="flex:1; padding:7px; font-size:13px;">
-            <i class="fa-solid fa-layer-group"></i> Degradado
-          </button>
-          <button type="button" id="toggleText" class="active" onclick="toggleStyle('toggleText')" style="flex:1; padding:7px; font-size:13px;">
-            <i class="fa-solid fa-font"></i> Texto
-          </button>
+      <div class="cv-section">
+        <div class="cv-label">Textura de fondo</div>
+        <div class="cv-seg">
+          <button type="button" class="cv-seg-btn active" id="cvTexRadar" onclick="setCvTexture('radar')">Radar</button>
+          <button type="button" class="cv-seg-btn"        id="cvTexSeal"  onclick="setCvTexture('seal')">Sello</button>
+          <button type="button" class="cv-seg-btn"        id="cvTexLogo"  onclick="setCvTexture('logo')">Logo</button>
+          <button type="button" class="cv-seg-btn"        id="cvTexNone"  onclick="setCvTexture('none')">Ninguna</button>
         </div>
       </div>
 
-      <div id="custom-color-controls" style="display:none; margin-top:14px;">
-        <label style="display:block; margin-bottom:6px; font-weight:600;">Colores del panel:</label>
-        <div class="form-row" style="gap:10px;">
-          <label style="flex:1; display:flex; flex-direction:column; gap:4px;">Fondo:<input type="color" id="customBg"     value="#1D2A4A"></label>
-          <label style="flex:1; display:flex; flex-direction:column; gap:4px;">Acento:<input type="color" id="customAccent" value="#E8C84A"></label>
-          <label style="flex:1; display:flex; flex-direction:column; gap:4px;">Etiqueta:<input type="color" id="customLabel"  value="#7B9ED9"></label>
+      <div class="cv-section">
+        <div class="cv-label">Imagen o PDF del documento</div>
+        <div id="imageDropZone" class="image-dropzone">Arrastrá una imagen o PDF aquí, o hacé click</div>
+        <input type="file" id="imageInput" accept="image/*,.pdf" style="display:none">
+      </div>
+
+            <div class="cv-section">
+        <div class="cv-label">Logo de arriba</div>
+        <select id="cvTopLogo" onchange="setCvState('topLogo', this.value)">
+          <option value="sello-color">Sello color</option>
+          <option value="imagotipo-blanco" selected>Imagotipo blanco</option>
+          <option value="logotipo-blanco">Logotipo blanco</option>
+        </select>
+      </div>
+
+      <div class="cv-section">
+        <div class="cv-label">Eyebrow</div>
+        <input type="text" id="cvEyebrow" value="ACTUALIDAD" autocomplete="off"
+               oninput="setCvState('eyebrow', this.value)">
+      </div>
+
+      <div class="cv-section">
+        <div class="cv-label">T&#237;tulo</div>
+        <textarea id="cvTitle" rows="3" placeholder="T&#237;tulo del comunicado&#8230;"
+                  oninput="setCvState('title', this.value); autoResize(this);"
+                  style="width:100%; min-height:72px; resize:none; overflow:hidden;"></textarea>
+      </div>
+
+      <div class="cv-section">
+        <div class="cv-label">Pie</div>
+        <input type="text" id="cvFooter" autocomplete="off"
+               oninput="setCvState('footer', this.value)">
+      </div>
+
+      <div class="cv-section">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <div class="cv-label" style="margin:0;">P&#225;ginas del PDF</div>
+          <label class="cv-check">
+            <input type="checkbox" id="cvPagesShow" onchange="setCvState('pagesShow', this.checked)">
+            Mostrar
+          </label>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <label style="flex:1; display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:600;">
+            N&#186; real<input type="number" id="cvPagesCount" min="1" value="1"
+                          oninput="setCvState('pagesCount', +this.value)">
+          </label>
+          <label style="flex:1; display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:600;">
+            Gr&#225;fico<select id="cvSheetsGraphic" onchange="setCvState('sheetsGraphic', +this.value)">
+              <option value="1" selected>1 hoja</option>
+              <option value="2">2 hojas</option>
+              <option value="3">3 hojas</option>
+            </select>
+          </label>
         </div>
       </div>
+
+      <details class="cv-section" id="cvCustomSection">
+        <summary class="cv-custom-summary">
+          <i class="fa-solid fa-palette"></i> Colores custom
+          <span class="cv-custom-hint">Solo esta sesi&#243;n &#183; se descarta al limpiar</span>
+        </summary>
+        <div class="cv-custom-grid">
+          <label>Tinta<input type="color" id="cvInk"        oninput="setCustomColor('ink',this.value)"></label>
+          <label>Acento<input type="color" id="cvAccent"     oninput="setCustomColor('accent',this.value)"></label>
+          <label>Pie<input type="color" id="cvFootAccent"   oninput="setCustomColor('footAccent',this.value)"></label>
+          <label>Fondo<input type="color" id="cvBg"          oninput="setCustomColor('bg',this.value)"></label>
+          <label>Fondo der.<input type="color" id="cvBgRight" oninput="setCustomColor('bgRight',this.value)"></label>
+          <button type="button" class="cv-reset-colors" onclick="resetCustomColors()">Restablecer colores</button>
+        </div>
+      </details>
 
     </div>
   </div>
@@ -1333,14 +1394,49 @@ canvas {
 const STORAGE_KEY = 'atepsa_editor_v1';
 let saveTimeout = null;
 let imageDataUrl = null;
-let currentCoverTemplate = 'split-actualidad';
-
-const coverPresets = {
-  'split-actualidad':   { bg: '#1D2A4A', accent: '#E8C84A', labelColor: '#7B9ED9', label: 'ACTUALIDAD'   },
-  'split-convocatoria': { bg: '#1A3D2A', accent: '#4CAF50', labelColor: '#81C784', label: 'CONVOCATORIA' },
-  'split-urgente':      { bg: '#7A0000', accent: '#FF4444', labelColor: '#FF8080', label: 'URGENTE'       },
-  'split-comunicado':   { bg: '#2D1B4E', accent: '#A66EEF', labelColor: '#C4A0FF', label: 'COMUNICADO'   },
+let coverState = {
+  layout:       'full',
+  theme:        'dark',
+  texture:      'radar',
+  topLogo:      'imagotipo-blanco',
+  eyebrow:      'ACTUALIDAD',
+  title:        '',
+  footer:       '',
+  pagesShow:    false,
+  pagesCount:   1,
+  sheetsGraphic: 1,
+  customColors: null,
 };
+
+const PALETTE = {
+  navy: '#2E3863', navyDeep: '#232b4d', cyan: '#6CC4C7',
+  cyanSoft: '#9ED6D8', blue: '#4B73AC', bg: '#F5F7FA', panel: '#E9EDF3',
+};
+const THEME_COLORS = {
+  dark:  { ink: '#FFFFFF', accent: '#6CC4C7', footAccent: '#9ED6D8', bg: '#2E3863' },
+  light: { ink: '#2E3863', accent: '#4B73AC', footAccent: '#4B73AC', bg: '#F5F7FA' },
+};
+const LOGO_SRCS = {
+  'sello-color':      'logos/atepsa-sello-color.png',
+  'imagotipo-blanco': 'logos/atepsa-imagotipo-blanco.png',
+  'logotipo-blanco':  'logos/atepsa-logotipo-blanco.png',
+};
+const logoCache = {};
+
+function todayFooter() {
+  const d = new Date();
+  const M = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  return `ATEPSA · ${String(d.getDate()).padStart(2,'0')} ${M[d.getMonth()]} ${d.getFullYear()}`;
+}
+coverState.footer = todayFooter();
+
+function preloadLogos() {
+  Object.entries(LOGO_SRCS).forEach(([id, src]) => {
+    const i = new Image(); i.src = src; logoCache[id] = i;
+    i.onload = () => render();
+  });
+}
+
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -3001,25 +3097,16 @@ function saveState() {
       blocks,
       downloadItems,
       canvas: {
-        coverTemplate: currentCoverTemplate,
-        textMain:     document.getElementById('textMain').value,
-        textSub:      document.getElementById('textSub').value,
-        fontSizeMain: document.getElementById('fontSizeMain').value,
-        fontSizeSub:  document.getElementById('fontSizeSub').value,
-        gap:          document.getElementById('gap').value,
-        blockWidth:   document.getElementById('blockWidth').value,
-        gradientColor:document.getElementById('gradientColor').value,
-        paddingX:     document.getElementById('paddingX').value,
-        paddingY:     document.getElementById('paddingY').value,
-        mainBold:       document.getElementById('mainBold').classList.contains('active'),
-        mainItalic:     document.getElementById('mainItalic').classList.contains('active'),
-        subBold:        document.getElementById('subBold').classList.contains('active'),
-        subItalic:      document.getElementById('subItalic').classList.contains('active'),
-        toggleGradient: document.getElementById('toggleGradient').classList.contains('active'),
-        toggleText:     document.getElementById('toggleText').classList.contains('active'),
-        customBg:      document.getElementById('customBg').value,
-        customAccent:  document.getElementById('customAccent').value,
-        customLabel:   document.getElementById('customLabel').value,
+        layout:        coverState.layout,
+        theme:         coverState.theme,
+        texture:       coverState.texture,
+        topLogo:       coverState.topLogo,
+        eyebrow:       coverState.eyebrow,
+        title:         coverState.title,
+        footer:        coverState.footer,
+        pagesShow:     coverState.pagesShow,
+        pagesCount:    coverState.pagesCount,
+        sheetsGraphic: coverState.sheetsGraphic,
       },
       canvasImage: imageDataUrl
     };
@@ -3051,14 +3138,12 @@ function loadState() {
 
     if (s.canvas) {
       const c = s.canvas;
-      ['textMain','textSub','fontSizeMain','fontSizeSub','gap','blockWidth','gradientColor','paddingX','paddingY']
-        .forEach(id => { if (c[id] !== undefined) document.getElementById(id).value = c[id]; });
-      ['mainBold','mainItalic','subBold','subItalic','toggleGradient','toggleText']
-        .forEach(id => { document.getElementById(id).classList.toggle('active', !!c[id]); });
-      if (c.customBg     !== undefined) document.getElementById('customBg').value     = c.customBg;
-      if (c.customAccent !== undefined) document.getElementById('customAccent').value  = c.customAccent;
-      if (c.customLabel  !== undefined) document.getElementById('customLabel').value   = c.customLabel;
-      if (c.coverTemplate) setTemplate(c.coverTemplate, true);
+      ['layout','theme','texture','topLogo','eyebrow','title','footer',
+       'pagesShow','pagesCount','sheetsGraphic'].forEach(k => {
+        if (c[k] !== undefined) coverState[k] = c[k];
+      });
+      coverState.customColors = null;
+      syncCoverUI();
     }
 
     if (s.canvasImage) {
@@ -3101,36 +3186,26 @@ function resetState() {
   document.getElementById('article-imagen').value      = '';
   document.getElementById('download-title').value      = 'Zona de Descargas';
   document.getElementById('download-description').value= 'Descargá el comunicado completo en formato PDF.';
-  document.getElementById('textMain').value     = '';
-  document.getElementById('textSub').value      = 'ACTUALIDAD';
-  document.getElementById('fontSizeMain').value = '73';
-  document.getElementById('fontSizeSub').value  = '35';
-  document.getElementById('gap').value          = '40';
-  document.getElementById('blockWidth').value   = '800';
-  document.getElementById('gradientColor').value= '#000000';
-  document.getElementById('paddingX').value     = '60';
-  document.getElementById('paddingY').value     = '0';
-  document.getElementById('mainBold').classList.add('active');
-  document.getElementById('mainItalic').classList.add('active');
-  document.getElementById('subBold').classList.remove('active');
-  document.getElementById('subItalic').classList.remove('active');
-  document.getElementById('toggleGradient').classList.add('active');
-  document.getElementById('toggleText').classList.add('active');
-  document.getElementById('customBg').value     = '#1D2A4A';
-  document.getElementById('customAccent').value = '#E8C84A';
-  document.getElementById('customLabel').value  = '#7B9ED9';
+  coverState = {
+    layout: 'full', theme: 'dark', texture: 'radar',
+    topLogo: 'imagotipo-blanco', eyebrow: 'ACTUALIDAD',
+    title: '', footer: todayFooter(),
+    pagesShow: false, pagesCount: 1, sheetsGraphic: 1,
+    customColors: null,
+  };
+  syncCoverUI();
 
   const dz = document.getElementById('imageDropZone');
   if (dz) {
     dz.classList.remove('has-image', 'dragover');
     dz.style.backgroundImage = '';
-    dz.innerHTML = 'Arrastrá una imagen aquí o hacé click para seleccionar';
+    dz.innerHTML = 'Arrastrá una imagen o PDF aquí, o hacé click';
   }
 
   renderBlocks();
   renderDownloadItems();
   updatePreview();
-  setTemplate('split-actualidad', true);
+
   showFeedback('Editor limpiado. Nueva nota lista.', 'success', 2500);
 }
 
@@ -3141,6 +3216,8 @@ function resetState() {
     document.getElementById(id).addEventListener('change', updatePreview);
   });
 
+preloadLogos();
+document.fonts.ready.then(() => render());
 loadState();
 renderBlocks();
 renderDownloadItems();
@@ -3179,260 +3256,333 @@ function wrapTextGetLines(ctx, text, maxWidth) {
 }
 
 
-function render() {
-  const tpl = currentCoverTemplate;
-  if (tpl === 'classic') {
-    renderClassic();
-  } else if (tpl === 'custom') {
-    renderCustom();
-  } else {
-    renderSplit(coverPresets[tpl] || coverPresets['split-actualidad']);
-  }
+/* ===================================================
+   COVER — state management
+=================================================== */
+function getColors() {
+  const base = THEME_COLORS[coverState.theme] || THEME_COLORS.dark;
+  const c = coverState.customColors;
+  return {
+    ink:        (c && c.ink)        || base.ink,
+    accent:     (c && c.accent)     || base.accent,
+    footAccent: (c && c.footAccent) || base.footAccent,
+    bg:         (c && c.bg)         || base.bg,
+    bgRight:    (c && c.bgRight)    || PALETTE.panel,
+  };
 }
 
-function setTemplate(tpl, skipAutoFill) {
-  const prevTpl = currentCoverTemplate;
-  currentCoverTemplate = tpl;
+function setCvState(key, val) { coverState[key] = val; render(); saveState(); }
 
-  document.querySelectorAll('.tpl-pill').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tpl === tpl);
+function setCvLayout(layout) {
+  coverState.layout = layout;
+  document.getElementById('cvLayoutFull').classList.toggle('active',  layout === 'full');
+  document.getElementById('cvLayoutSplit').classList.toggle('active', layout === 'split');
+  render(); saveState();
+}
+
+function setCvTheme(theme) {
+  coverState.theme = theme;
+  document.getElementById('cvThemeDark').classList.toggle('active',  theme === 'dark');
+  document.getElementById('cvThemeLight').classList.toggle('active', theme === 'light');
+  syncColorPickers();
+  render(); saveState();
+}
+
+function setCvTexture(tex) {
+  coverState.texture = tex;
+  ['Radar','Seal','Logo','None'].forEach(t => {
+    const el = document.getElementById('cvTex' + t);
+    if (el) el.classList.toggle('active', tex === t.toLowerCase());
   });
+  render(); saveState();
+}
 
-  if (!skipAutoFill) {
-    const prevPreset = coverPresets[prevTpl];
-    const newPreset  = coverPresets[tpl];
-    const textSubEl  = document.getElementById('textSub');
-    if (newPreset && (!textSubEl.value || (prevPreset && textSubEl.value === prevPreset.label))) {
-      textSubEl.value = newPreset.label;
-    }
-  }
-
-  const isClassicLike = (tpl === 'classic' || tpl === 'custom');
-  const isCustom      = (tpl === 'custom');
-
-  document.getElementById('labelTextSub').textContent               = isClassicLike ? 'Texto 2:'   : 'Categoría:';
-  document.getElementById('classic-main-style').style.display       = isClassicLike ? 'flex'        : 'none';
-  document.getElementById('classic-sub-wrap').style.display         = isClassicLike ? 'flex'        : 'none';
-  document.getElementById('classic-layout-controls').style.display  = isClassicLike ? 'block'       : 'none';
-  document.getElementById('custom-color-controls').style.display    = isCustom      ? 'block'       : 'none';
-
+function setCustomColor(key, val) {
+  if (!coverState.customColors) coverState.customColors = {};
+  coverState.customColors[key] = val;
   render();
-  saveState();
 }
 
-function fitTitle(ctx, text, maxWidth, startSize, maxLines) {
-  let size = startSize;
-  while (size >= 28) {
-    ctx.font = `bold ${size}px Georgia, serif`;
-    const info = wrapTextGetLines(ctx, text, maxWidth);
-    if (info.lines.length <= maxLines) return { size, ...info };
-    size -= 4;
+function resetCustomColors() {
+  coverState.customColors = null;
+  syncColorPickers();
+  render();
+}
+
+function syncColorPickers() {
+  const { ink, accent, footAccent, bg, bgRight } = getColors();
+  document.getElementById('cvInk').value        = ink;
+  document.getElementById('cvAccent').value      = accent;
+  document.getElementById('cvFootAccent').value  = footAccent;
+  document.getElementById('cvBg').value          = bg;
+  document.getElementById('cvBgRight').value     = bgRight;
+}
+
+function syncCoverUI() {
+  const cs = coverState;
+  document.getElementById('cvLayoutFull').classList.toggle('active',  cs.layout === 'full');
+  document.getElementById('cvLayoutSplit').classList.toggle('active', cs.layout === 'split');
+  document.getElementById('cvThemeDark').classList.toggle('active',  cs.theme === 'dark');
+  document.getElementById('cvThemeLight').classList.toggle('active', cs.theme === 'light');
+  ['radar','seal','logo','none'].forEach(t => {
+    const el = document.getElementById('cvTex' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (el) el.classList.toggle('active', cs.texture === t);
+  });
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  setVal('cvTopLogo',       cs.topLogo);
+  setVal('cvEyebrow',       cs.eyebrow);
+  setVal('cvTitle',         cs.title);
+  setVal('cvFooter',        cs.footer);
+  setVal('cvPagesCount',    cs.pagesCount);
+  setVal('cvSheetsGraphic', cs.sheetsGraphic);
+  const chk = document.getElementById('cvPagesShow');
+  if (chk) chk.checked = cs.pagesShow;
+  syncColorPickers();
+}
+
+/* ===================================================
+   COVER — canvas drawing atoms
+=================================================== */
+function drawLogoImg(logoId, x, y, size) {
+  const li = logoCache[logoId];
+  if (!li || !li.complete || !li.naturalWidth) return;
+  const sc = Math.min(size / li.naturalWidth, size / li.naturalHeight);
+  ctx.drawImage(li, x, y, li.naturalWidth * sc, li.naturalHeight * sc);
+}
+
+function drawRadarTexture(cx, cy, dark, clip) {
+  ctx.save();
+  if (clip) { ctx.beginPath(); ctx.rect(clip.x, clip.y, clip.w, clip.h); ctx.clip(); }
+  const color = dark ? 'rgba(108,196,199,0.12)' : 'rgba(75,115,172,0.09)';
+  ctx.lineWidth = 1;
+  for (let r = 1; r < 1800; r += 72) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = color;
+    ctx.stroke();
   }
-  ctx.font = `bold 28px Georgia, serif`;
-  return { size: 28, ...wrapTextGetLines(ctx, text, maxWidth) };
+  const dotX = (clip ? clip.x : 0) + 54, dotY = 720 - 54;
+  ctx.beginPath(); ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = PALETTE.cyan; ctx.fill();
+  ctx.beginPath(); ctx.arc(dotX, dotY, 2.5, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(108,196,199,0.25)'; ctx.lineWidth = 6; ctx.stroke();
+  ctx.restore();
 }
 
-function renderSplit(preset) {
-  const W = canvas.width;
-  const H = canvas.height;
+function drawSealTexture(logoId, dark, offsetX) {
+  const li = logoCache[logoId] || logoCache['sello-color'];
+  if (!li || !li.complete || !li.naturalWidth) return;
+  ctx.save();
+  ctx.globalAlpha = dark ? 0.09 : 0.06;
+  ctx.drawImage(li, (offsetX || 0) - 180, 150, 540, 540);
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
 
-  ctx.clearRect(0, 0, W, H);
+function drawKicker(x, y, label, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  const ry = y - 2;
+  if (ctx.roundRect) { ctx.roundRect(x, ry, 38, 4, 2); } else { ctx.rect(x, ry, 38, 4); }
+  ctx.fill();
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.font = '600 15px "JetBrains Mono", monospace';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '3.5px';
+  ctx.fillText((label || '').toUpperCase(), x + 52, y + 2);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.restore();
+  return 18;
+}
 
-  const splitX = Math.round(W * 0.55); // panel de texto más ancho
+function drawWrappedTitle(x, y, maxW, text, color, fontSize) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.font = `800 ${fontSize}px "Source Sans 3", system-ui, sans-serif`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '-1.1px';
+  const lineH = fontSize * 1.07;
+  (wrapTextGetLines(ctx, text || '', maxW).lines).forEach(line => {
+    ctx.fillText(line.trim(), x, y); y += lineH;
+  });
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.restore();
+  return y;
+}
 
-  // === PANEL IZQUIERDO (texto) ===
-  ctx.fillStyle = preset.bg;
-  ctx.fillRect(0, 0, splitX, H);
+function drawPagesRow(x, y, count, accent, footAccent) {
+  ctx.fillStyle = accent;
+  ctx.fillRect(x, y - 1, 22, 2);
+  ctx.save();
+  ctx.fillStyle = footAccent;
+  ctx.font = '600 13px "JetBrains Mono", monospace';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '1.6px';
+  ctx.fillText(`PÁGINAS · ${count}`, x + 33, y + 3);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.restore();
+}
 
-  // === PANEL DERECHO (documento) ===
-  ctx.fillStyle = '#E8ECF0';
-  ctx.fillRect(splitX, 0, W - splitX, H);
+function drawFooterText(x, y, text, color) {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.font = '600 13.5px "JetBrains Mono", monospace';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '1.5px';
+  ctx.fillText(text, x, y);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.restore();
+}
 
-  const docPadX = 30;
-  const docPadY = 26;
-  const docAreaW = W - splitX - docPadX * 2;
-  const docAreaH = H - docPadY * 2;
+function drawDocShadow(x, y, w, h, dark, r) {
+  ctx.save();
+  ctx.shadowColor    = dark ? 'rgba(0,0,0,0.42)'      : 'rgba(15,28,69,0.20)';
+  ctx.shadowBlur     = dark ? 64                       : 56;
+  ctx.shadowOffsetX  = 0;
+  ctx.shadowOffsetY  = dark ? 30                       : 28;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  if (r && ctx.roundRect) { ctx.roundRect(x, y, w, h, r); } else { ctx.rect(x, y, w, h); }
+  ctx.fill();
+  ctx.restore();
+}
 
-  if (img) {
-    const imgAspect  = img.width / img.height;
-    const areaAspect = docAreaW / docAreaH;
-    let docW, docH;
-    if (imgAspect < areaAspect) {
-      docH = docAreaH;
-      docW = docH * imgAspect;
+function drawDocImage(x, y, w, h, r) {
+  ctx.save();
+  ctx.beginPath();
+  if (r && ctx.roundRect) { ctx.roundRect(x, y, w, h, r); } else { ctx.rect(x, y, w, h); }
+  ctx.clip();
+  if (img) { ctx.drawImage(img, x, y, w, h); }
+  else { ctx.fillStyle = '#f5f5f5'; ctx.fill(); }
+  ctx.restore();
+}
+
+function drawDocCard(x, y, w, h, dark) {
+  drawDocShadow(x, y, w, h, dark, 4);
+  drawDocImage(x, y, w, h, 4);
+}
+
+function drawStackDoc(sheets, cx, cy, w, dark) {
+  const h = Math.round(w * 1118 / 788);
+  const drawSheet = (tx, ty, withImg) => {
+    drawDocShadow(cx + tx, cy + ty, w, h, dark, 4);
+    if (withImg) {
+      drawDocImage(cx + tx, cy + ty, w, h, 4);
     } else {
-      docW = docAreaW;
-      docH = docW / imgAspect;
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      if (ctx.roundRect) { ctx.roundRect(cx+tx, cy+ty, w, h, 4); } else { ctx.rect(cx+tx, cy+ty, w, h); }
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(15,28,69,0.06)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.restore();
     }
-    const docX = splitX + (W - splitX - docW) / 2;
-    const docY = (H - docH) / 2;
+  };
+  if (sheets >= 3) drawSheet(28, 26, false);
+  if (sheets >= 2) drawSheet(14, 13, false);
+  drawSheet(0, 0, true);
+}
 
-    // Sombra del documento
-    ctx.shadowColor    = 'rgba(0,0,0,0.28)';
-    ctx.shadowBlur     = 20;
-    ctx.shadowOffsetX  = 4;
-    ctx.shadowOffsetY  = 6;
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(docX, docY, docW, docH);
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
+function applyTexture(cs, dark, clip) {
+  if (cs.texture === 'radar') {
+    const cx = clip ? 180 : 200, cy = clip ? 540 : 520;
+    drawRadarTexture(cx, cy, dark, clip);
+  } else if (cs.texture === 'seal') {
+    if (clip) { ctx.save(); ctx.beginPath(); ctx.rect(clip.x, clip.y, clip.w, clip.h); ctx.clip(); }
+    drawSealTexture('sello-color', dark, clip ? clip.x : 0);
+    if (clip) ctx.restore();
+  } else if (cs.texture === 'logo') {
+    if (clip) { ctx.save(); ctx.beginPath(); ctx.rect(clip.x, clip.y, clip.w, clip.h); ctx.clip(); }
+    drawSealTexture(cs.topLogo, dark, clip ? clip.x : 0);
+    if (clip) ctx.restore();
+  }
+}
 
-    ctx.drawImage(img, docX, docY, docW, docH);
+/* ===================================================
+   COVER — main render
+=================================================== */
+function render() {
+  if (coverState.layout === 'split') renderSevenSplit();
+  else renderSeven();
+}
+
+function renderSeven() {
+  const W = 1280, H = 720, cs = coverState;
+  const { ink, accent, footAccent, bg } = getColors();
+  const dark = cs.theme === 'dark';
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  applyTexture(cs, dark, null);
+
+  // Cyan band
+  ctx.fillStyle = PALETTE.cyan; ctx.fillRect(0, 0, 14, H);
+
+  // Document
+  const docW = cs.sheetsGraphic > 1 ? 420 : 458;
+  const docH = Math.round(docW * 1118 / 788);
+  if (cs.sheetsGraphic > 1) {
+    const ch = Math.round(docW * 1118 / 788);
+    const cx = W - 86 - docW, cy = Math.round((H - ch - 26) / 2);
+    drawStackDoc(cs.sheetsGraphic, cx, cy, docW, dark);
   } else {
-    // Placeholder hoja A4
-    const ph = { w: Math.round(docAreaH * 0.707), h: docAreaH };
-    const phX = splitX + (W - splitX - ph.w) / 2;
-    const phY = docPadY;
-    ctx.shadowColor = 'rgba(0,0,0,0.15)';
-    ctx.shadowBlur  = 12;
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(phX, phY, ph.w, ph.h);
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur  = 0;
-    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-    ctx.font = '16px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Cargá una imagen o PDF', splitX + (W - splitX) / 2, H / 2);
-    ctx.textAlign = 'left';
+    drawDocCard(W - 72 - docW, Math.round((H - docH) / 2), docW, docH, dark);
   }
 
-  // Línea de acento vertical
-  ctx.fillStyle = preset.accent;
-  ctx.fillRect(splitX - 6, 0, 6, H);
+  // Logo
+  drawLogoImg(cs.topLogo, 86, 84, 58);
 
-  // === CONTENIDO PANEL IZQUIERDO ===
-  const padL  = 62;
-  const textW = splitX - padL - 40;
+  // Text block: x=86, y=208
+  const tx = 86, ty = 208, tw = 600;
+  const kh = drawKicker(tx, ty, cs.eyebrow, accent);
+  let ny = drawWrappedTitle(tx, ty + kh + 24, tw, cs.title, ink, 52);
+  if (cs.pagesShow) drawPagesRow(tx, ny + 20, cs.pagesCount, accent, footAccent);
 
-  // Línea de acento superior
-  ctx.fillStyle = preset.accent;
-  ctx.fillRect(padL, 52, 56, 6);
-
-  // Categoría
-  const catText = (document.getElementById('textSub').value || preset.label).toUpperCase();
-  ctx.fillStyle  = preset.labelColor;
-  ctx.font       = 'bold 26px Roboto, Arial, sans-serif';
-  ctx.fillText(catText, padL, 104);
-
-  // Título (auto-ajuste de tamaño, máx 5 líneas)
-  const titleText = document.getElementById('textMain').value || '';
-  ctx.fillStyle = '#FFFFFF';
-  const { size: ts, lines: tLines } = fitTitle(ctx, titleText, textW, 78, 5);
-  const tLineH = ts * 1.26;
-  let tY = 154;
-  tLines.forEach(line => { ctx.fillText(line.trim(), padL, tY); tY += tLineH; });
-
-  // ATEPSA
-  ctx.fillStyle = preset.accent;
-  ctx.font      = 'bold 30px Roboto, Arial, sans-serif';
-  ctx.fillText('ATEPSA', padL, H - 44);
-
-  // Barra inferior
-  ctx.fillStyle = preset.accent;
-  ctx.fillRect(padL, H - 28, 98, 5);
-
+  drawFooterText(86, H - 56, cs.footer, footAccent);
   saveState();
 }
 
-function renderCustom() {
-  renderSplit({
-    bg:         document.getElementById('customBg').value,
-    accent:     document.getElementById('customAccent').value,
-    labelColor: document.getElementById('customLabel').value,
-    label:      document.getElementById('textSub').value || 'ACTUALIDAD',
-  });
-}
-
-function renderClassic() {
-  if (!img) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    return;
-  }
-
-  const W = canvas.width;
-  const H = canvas.height;
-
-  const paddingX   = parseInt(document.getElementById("paddingX").value);
-  const paddingY   = parseInt(document.getElementById("paddingY").value);
-  const blockWidth = parseInt(document.getElementById("blockWidth").value);
-  const gap        = parseInt(document.getElementById("gap").value);
-  const sizeMain   = parseInt(document.getElementById("fontSizeMain").value);
-  const sizeSub    = parseInt(document.getElementById("fontSizeSub").value);
-  const styleMain  = buildFontStyle("mainBold", "mainItalic");
-  const styleSub   = buildFontStyle("subBold", "subItalic");
-  const main       = document.getElementById("textMain").value;
-  const sub        = document.getElementById("textSub").value;
+function renderSevenSplit() {
+  const W = 1280, H = 720, cs = coverState;
+  const { ink, accent, footAccent, bg, bgRight } = getColors();
+  const dark = cs.theme === 'dark';
+  const sx = 668; // splitX
 
   ctx.clearRect(0, 0, W, H);
 
-  ctx.filter = "blur(30px)";
-  const scaleBg = Math.max(W / img.width, H / img.height);
-  ctx.drawImage(img, 0, 0, img.width * scaleBg, img.height * scaleBg);
+  // Left zone
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, sx, H);
+  applyTexture(cs, dark, { x: 0, y: 0, w: sx, h: H });
 
-  ctx.filter = "none";
-  const scale = Math.min(W / img.width, H / img.height);
-  const ix = (W - img.width * scale) / 2;
-  const iy = (H - img.height * scale) / 2;
-  ctx.drawImage(img, ix, iy, img.width * scale, img.height * scale);
+  // Divider
+  ctx.fillStyle = PALETTE.cyan; ctx.fillRect(sx, 0, 3, H);
 
-  const showGradient = document.getElementById('toggleGradient').classList.contains('active');
-  const showText     = document.getElementById('toggleText').classList.contains('active');
+  // Right zone
+  ctx.fillStyle = bgRight; ctx.fillRect(sx + 3, 0, W - sx - 3, H);
 
-  if (showGradient) {
-    const color = document.getElementById("gradientColor").value;
-    const grad  = ctx.createLinearGradient(0, H, 0, 0);
-    grad.addColorStop(0,   color + "E0");
-    grad.addColorStop(0.4, color + "80");
-    grad.addColorStop(1,   color + "00");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
+  // Document in right zone
+  const rw = W - sx - 3;
+  const docW = cs.sheetsGraphic > 1 ? 380 : 426;
+  const docH = Math.round(docW * 1118 / 788);
+  const docX = sx + 3 + Math.round((rw - docW) / 2);
+  const docY = Math.round((H - docH) / 2);
+  if (cs.sheetsGraphic > 1) {
+    const ch = Math.round(docW * 1118 / 788);
+    const stackX = sx + 3 + Math.round((rw - docW) / 2);
+    const stackY = Math.round((H - ch - 26) / 2);
+    drawStackDoc(cs.sheetsGraphic, stackX, stackY, docW, false);
+  } else {
+    drawDocCard(docX, docY, docW, docH, false);
   }
 
-  if (showText) {
-    ctx.fillStyle = "white";
-    ctx.font = `${styleMain} ${sizeMain}px Georgia`;
-    const titleInfo = wrapTextGetLines(ctx, main, blockWidth);
-    ctx.font = `${styleSub} ${sizeSub}px Roboto`;
-    const subInfo   = wrapTextGetLines(ctx, sub, blockWidth);
+  // Logo + text
+  drawLogoImg(cs.topLogo, 64, 74, 58);
+  const tx = 64, ty = 212, tw = 540;
+  const kh = drawKicker(tx, ty, cs.eyebrow, accent);
+  let ny = drawWrappedTitle(tx, ty + kh + 24, tw, cs.title, ink, 50);
+  if (cs.pagesShow) drawPagesRow(tx, ny + 20, cs.pagesCount, accent, footAccent);
 
-    const totalTextHeight = subInfo.height + gap + titleInfo.height;
-    let baseY = H - paddingY - totalTextHeight;
-
-    ctx.font = `${styleSub} ${sizeSub}px Roboto`;
-    const lineHeightSub = sizeSub * 1.2;
-    subInfo.lines.forEach(line => { ctx.fillText(line, paddingX, baseY); baseY += lineHeightSub; });
-
-    baseY += gap;
-
-    ctx.font = `${styleMain} ${sizeMain}px Georgia`;
-    const lineHeightMain = sizeMain * 1.2;
-    titleInfo.lines.forEach(line => { ctx.fillText(line, paddingX, baseY); baseY += lineHeightMain; });
-  }
-
+  drawFooterText(64, H - 56, cs.footer, footAccent);
   saveState();
 }
-
-function buildFontStyle(boldId, italicId) {
-  const isBold = document.getElementById(boldId).classList.contains("active");
-  const isItalic = document.getElementById(italicId).classList.contains("active");
-
-  const style = isItalic ? "italic" : "normal";
-  const weight = isBold ? "bold" : "normal";
-
-  return `${style} ${weight}`;
-}
-
-
-document.getElementById("mainBold").onclick = () => toggleStyle("mainBold");
-document.getElementById("mainItalic").onclick = () => toggleStyle("mainItalic");
-document.getElementById("subBold").onclick = () => toggleStyle("subBold");
-document.getElementById("subItalic").onclick = () => toggleStyle("subItalic");
-
-function toggleStyle(id) {
-  document.getElementById(id).classList.toggle("active");
-  render();
-}
-
 document.querySelectorAll("input").forEach(el => {
   el.addEventListener("input",  render);
   el.addEventListener("change", render);
@@ -3484,6 +3634,13 @@ async function handleFileAsPdf(file) {
 
     const arrayBuffer = await file.arrayBuffer();
     const pdf  = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const realCount = pdf.numPages;
+    coverState.pagesCount    = realCount;
+    coverState.sheetsGraphic = Math.min(realCount, 3);
+    const pgEl = document.getElementById('cvPagesCount');
+    const shEl = document.getElementById('cvSheetsGraphic');
+    if (pgEl) pgEl.value = realCount;
+    if (shEl) shEl.value = Math.min(realCount, 3);
     const page = await pdf.getPage(1);
 
     const viewport = page.getViewport({ scale: 2.5 });

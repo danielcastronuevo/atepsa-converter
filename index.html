@@ -7,6 +7,9 @@
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <style>
 :root {
   --bg-color: #efefef
@@ -1123,8 +1126,8 @@ canvas {
       </div>
 
       <label style="display:block; margin-bottom:4px;">Imagen:</label>
-      <div id="imageDropZone" class="image-dropzone">Arrastrá una imagen aquí o hacé click para seleccionar</div>
-      <input type="file" id="imageInput" style="display:none">
+      <div id="imageDropZone" class="image-dropzone">Arrastrá una imagen o PDF aquí, o hacé click para seleccionar</div>
+      <input type="file" id="imageInput" accept="image/*,.pdf" style="display:none">
 
       <div style="display:flex; width:100%; flex-direction:column; margin-top:12px;">
         <label id="labelTextSub" style="margin:0 0 4px;">Categoría:</label>
@@ -3235,68 +3238,98 @@ function renderSplit(preset) {
 
   ctx.clearRect(0, 0, W, H);
 
-  const splitX = Math.round(W * 0.42);
+  const splitX = Math.round(W * 0.55); // panel de texto más ancho
 
-  // Panel izquierdo
+  // === PANEL IZQUIERDO (texto) ===
   ctx.fillStyle = preset.bg;
   ctx.fillRect(0, 0, splitX, H);
 
-  // Panel derecho (imagen)
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(splitX, 0, W - splitX, H);
-  ctx.clip();
+  // === PANEL DERECHO (documento) ===
+  ctx.fillStyle = '#E8ECF0';
+  ctx.fillRect(splitX, 0, W - splitX, H);
+
+  const docPadX = 30;
+  const docPadY = 26;
+  const docAreaW = W - splitX - docPadX * 2;
+  const docAreaH = H - docPadY * 2;
+
   if (img) {
-    const panelW = W - splitX;
-    const scale  = Math.max(panelW / img.width, H / img.height);
-    const drawW  = img.width  * scale;
-    const drawH  = img.height * scale;
-    ctx.drawImage(img, splitX + (panelW - drawW) / 2, (H - drawH) / 2, drawW, drawH);
+    const imgAspect  = img.width / img.height;
+    const areaAspect = docAreaW / docAreaH;
+    let docW, docH;
+    if (imgAspect < areaAspect) {
+      docH = docAreaH;
+      docW = docH * imgAspect;
+    } else {
+      docW = docAreaW;
+      docH = docW / imgAspect;
+    }
+    const docX = splitX + (W - splitX - docW) / 2;
+    const docY = (H - docH) / 2;
+
+    // Sombra del documento
+    ctx.shadowColor    = 'rgba(0,0,0,0.28)';
+    ctx.shadowBlur     = 20;
+    ctx.shadowOffsetX  = 4;
+    ctx.shadowOffsetY  = 6;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(docX, docY, docW, docH);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = ctx.shadowOffsetX = ctx.shadowOffsetY = 0;
+
+    ctx.drawImage(img, docX, docY, docW, docH);
   } else {
-    ctx.fillStyle = '#1a1a2a';
-    ctx.fillRect(splitX, 0, W - splitX, H);
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.font = '20px sans-serif';
+    // Placeholder hoja A4
+    const ph = { w: Math.round(docAreaH * 0.707), h: docAreaH };
+    const phX = splitX + (W - splitX - ph.w) / 2;
+    const phY = docPadY;
+    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+    ctx.shadowBlur  = 12;
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(phX, phY, ph.w, ph.h);
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur  = 0;
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.font = '16px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Cargá la imagen del documento', splitX + (W - splitX) / 2, H / 2);
+    ctx.fillText('Cargá una imagen o PDF', splitX + (W - splitX) / 2, H / 2);
     ctx.textAlign = 'left';
   }
-  ctx.restore();
 
   // Línea de acento vertical
   ctx.fillStyle = preset.accent;
-  ctx.fillRect(splitX - 5, 0, 5, H);
+  ctx.fillRect(splitX - 6, 0, 6, H);
 
-  // Contenido panel izquierdo
-  const padL  = 50;
-  const textW = splitX - padL - 28;
+  // === CONTENIDO PANEL IZQUIERDO ===
+  const padL  = 62;
+  const textW = splitX - padL - 40;
 
   // Línea de acento superior
   ctx.fillStyle = preset.accent;
-  ctx.fillRect(padL, 46, 48, 5);
+  ctx.fillRect(padL, 52, 56, 6);
 
-  // Etiqueta de categoría
+  // Categoría
   const catText = (document.getElementById('textSub').value || preset.label).toUpperCase();
-  ctx.fillStyle = preset.labelColor;
-  ctx.font = 'bold 21px Roboto, Arial, sans-serif';
-  ctx.fillText(catText, padL, 90);
+  ctx.fillStyle  = preset.labelColor;
+  ctx.font       = 'bold 26px Roboto, Arial, sans-serif';
+  ctx.fillText(catText, padL, 104);
 
-  // Título principal (auto-ajuste de tamaño)
+  // Título (auto-ajuste de tamaño, máx 5 líneas)
   const titleText = document.getElementById('textMain').value || '';
   ctx.fillStyle = '#FFFFFF';
-  const { size: ts, lines: tLines } = fitTitle(ctx, titleText, textW, 64, 5);
-  const tLineH = ts * 1.24;
-  let tY = 134;
+  const { size: ts, lines: tLines } = fitTitle(ctx, titleText, textW, 78, 5);
+  const tLineH = ts * 1.26;
+  let tY = 154;
   tLines.forEach(line => { ctx.fillText(line.trim(), padL, tY); tY += tLineH; });
 
-  // ATEPSA wordmark
+  // ATEPSA
   ctx.fillStyle = preset.accent;
-  ctx.font = 'bold 27px Roboto, Arial, sans-serif';
-  ctx.fillText('ATEPSA', padL, H - 42);
+  ctx.font      = 'bold 30px Roboto, Arial, sans-serif';
+  ctx.fillText('ATEPSA', padL, H - 44);
 
-  // Barra de acento inferior
+  // Barra inferior
   ctx.fillStyle = preset.accent;
-  ctx.fillRect(padL, H - 26, 85, 4);
+  ctx.fillRect(padL, H - 28, 98, 5);
 
   saveState();
 }
@@ -3409,34 +3442,67 @@ document.querySelectorAll("input").forEach(el => {
 const imageInputEl = document.getElementById("imageInput");
 const dropZone = document.getElementById("imageDropZone");
 
-function handleFileAsImage(file){
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const srcFull = ev.target.result;
-    img = new Image();
-    img.src = srcFull;
-    img.onload = () => {
-      render();
-      const dz = document.getElementById('imageDropZone');
-      if(dz){
-        dz.classList.add('has-image');
-        dz.style.backgroundImage = `url(${srcFull})`;
-        dz.innerHTML = `<div class="dz-ok">Cargada</div><div class="dz-preview"><img src="${srcFull}"></div>`;
-      }
-      showFeedback('Imagen cargada correctamente', 'success', 2000);
-      // Comprimir para localStorage: máx 1200px, JPEG 82%
-      const tmp = document.createElement('canvas');
-      const maxDim = 1200;
-      const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
-      tmp.width  = Math.round(img.width  * sc);
-      tmp.height = Math.round(img.height * sc);
-      tmp.getContext('2d').drawImage(img, 0, 0, tmp.width, tmp.height);
-      imageDataUrl = tmp.toDataURL('image/jpeg', 0.82);
-      saveState();
-    };
+function setLoadedImage(srcFull, label) {
+  img = new Image();
+  img.src = srcFull;
+  img.onload = () => {
+    render();
+    const dz = document.getElementById('imageDropZone');
+    if (dz) {
+      dz.classList.add('has-image');
+      dz.style.backgroundImage = `url(${srcFull})`;
+      dz.innerHTML = `<div class="dz-ok">${label}</div><div class="dz-preview"><img src="${srcFull}"></div>`;
+    }
+    showFeedback(label + ' cargado correctamente', 'success', 2000);
+    const tmp = document.createElement('canvas');
+    const maxDim = 1200;
+    const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
+    tmp.width  = Math.round(img.width  * sc);
+    tmp.height = Math.round(img.height * sc);
+    tmp.getContext('2d').drawImage(img, 0, 0, tmp.width, tmp.height);
+    imageDataUrl = tmp.toDataURL('image/jpeg', 0.82);
+    saveState();
   };
+}
+
+function handleFileAsImage(file) {
+  if (!file) return;
+  if (file.type === 'application/pdf') { handleFileAsPdf(file); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => setLoadedImage(ev.target.result, 'Imagen');
   reader.readAsDataURL(file);
+}
+
+async function handleFileAsPdf(file) {
+  const dz = document.getElementById('imageDropZone');
+  if (dz) dz.innerHTML = '<div class="dz-ok">Procesando PDF...</div>';
+
+  try {
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf  = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const page = await pdf.getPage(1);
+
+    const viewport = page.getViewport({ scale: 2.5 });
+    const offCanvas    = document.createElement('canvas');
+    offCanvas.width    = viewport.width;
+    offCanvas.height   = viewport.height;
+    const offCtx = offCanvas.getContext('2d');
+
+    offCtx.fillStyle = '#ffffff';
+    offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+
+    await page.render({ canvasContext: offCtx, viewport }).promise;
+
+    setLoadedImage(offCanvas.toDataURL('image/jpeg', 0.92), 'PDF');
+  } catch (e) {
+    console.error(e);
+    showFeedback('Error al procesar el PDF', 'error', 3000);
+    if (dz) dz.innerHTML = 'Arrastrá una imagen o PDF aquí, o hacé click para seleccionar';
+  }
 }
 
 imageInputEl.addEventListener("change", e => {

@@ -839,10 +839,51 @@ canvas {
 #fontSizeMain, #fontSizeSub { height: 40px; padding: 6px 8px; box-sizing: border-box; }
 #gradientColor { height: 40px; padding: 6px; box-sizing: border-box; border-radius: 8px; -webkit-appearance:none; appearance:none; background: var(--bg-alt); border:1px solid var(--card-border); }
 
-/* Ajustes específicos para editor-n2: reducir espacio entre fila de controles y su input */
+/* Ajustes específicos para editor-n2 */
 .editor-n2 #editor-img .form-row { margin-bottom: 4px; gap: 8px; align-items: center; }
-.editor-n2 #editor-img input[type="text"]#textMain,
-.editor-n2 #editor-img input[type="text"]#textSub { margin-top: 6px; }
+
+/* Selector de tipo de portada */
+.cover-tpl-wrap { margin-bottom: 14px; }
+.cover-tpl-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.cover-tpl-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.tpl-pill {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background: var(--bg-alt);
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tpl-pill::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tpl-c, #555);
+  flex-shrink: 0;
+  display: inline-block;
+}
+.tpl-pill:hover { border-color: var(--tpl-c, #555); }
+.tpl-pill.active {
+  background: var(--tpl-c, #555);
+  border-color: var(--tpl-c, #555);
+  color: #fff;
+}
+.tpl-pill.active::before { background: rgba(255,255,255,0.55); }
 
 .btn-active {
   background: var(--accent) !important;
@@ -1067,68 +1108,81 @@ canvas {
     </div>
       <div id="editor-img">
 
-      <h2 style="margin-bottom: 0;"><i class="fa-solid fa-sliders"></i> Configuración de portada</h2>
+      <h2 style="margin-bottom:12px;"><i class="fa-solid fa-sliders"></i> Configuración de portada</h2>
 
-      <label>Imagen base:</label>
+      <div class="cover-tpl-wrap">
+        <span class="cover-tpl-label">Tipo de portada</span>
+        <div class="cover-tpl-pills">
+          <button type="button" class="tpl-pill active" data-tpl="split-actualidad"   style="--tpl-c:#1D2A4A" onclick="setTemplate('split-actualidad')">Actualidad</button>
+          <button type="button" class="tpl-pill"        data-tpl="split-convocatoria" style="--tpl-c:#1A3D2A" onclick="setTemplate('split-convocatoria')">Convocatoria</button>
+          <button type="button" class="tpl-pill"        data-tpl="split-urgente"      style="--tpl-c:#7A0000" onclick="setTemplate('split-urgente')">Urgente</button>
+          <button type="button" class="tpl-pill"        data-tpl="split-comunicado"   style="--tpl-c:#2D1B4E" onclick="setTemplate('split-comunicado')">Comunicado</button>
+          <button type="button" class="tpl-pill"        data-tpl="classic"            style="--tpl-c:#444444" onclick="setTemplate('classic')">Clásico</button>
+          <button type="button" class="tpl-pill"        data-tpl="custom"             style="--tpl-c:#E67E22" onclick="setTemplate('custom')"><i class="fa-solid fa-palette"></i> Custom</button>
+        </div>
+      </div>
+
+      <label style="display:block; margin-bottom:4px;">Imagen:</label>
       <div id="imageDropZone" class="image-dropzone">Arrastrá una imagen aquí o hacé click para seleccionar</div>
       <input type="file" id="imageInput" style="display:none">
 
-<div class="text-control" style="display:flex; width:100%; flex-direction:column;">
-  <div class="text-control-left" style="width:100%;">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <label style="margin:0;">Texto 1:</label>
-
-      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
-        <button type="button" id="mainBold" class="active">B</button>
-        <button type="button" id="mainItalic" class="active">I</button>
-        <input type="number" id="fontSizeMain" value="73" style="width:86px;">
-      </div>
-    </div>
-  </div>
-
-  <div class="text-control-right" style="width:100%; margin-top:0px;">
-    <input type="text" id="textMain" placeholder="Texto principal" style="width:100%;" autocomplete="off">
-  </div>
-</div>
-
-
-<div class="text-control" style="display:flex; width:100%; flex-direction:column; margin-top:10px;">
-  <div class="text-control-left" style="width:100%;">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <label style="margin:0;">Texto 2:</label>
-
-      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
-        <button type="button" id="subBold">B</button>
-        <button type="button" id="subItalic">I</button>
-        <input type="number" id="fontSizeSub" value="35" style="width:86px;" autocomplete="off">
-      </div>
-    </div>
-  </div>
-
-  <div class="text-control-right" style="width:100%; margin-top:0px;">
-    <input type="text" id="textSub" value="ACTUALIDAD" style="width:100%;" autocomplete="off">
-  </div>
-</div>
-
-
-
-
-
-      <div class="form-row" style="margin-top:12px; gap:10px;">
-        <label style="flex:1; display:flex; flex-direction:column;">Gap:<input type="number" id="gap" value="40"></label>
-        <label style="flex:1; display:flex; flex-direction:column;">Width:<input type="number" id="blockWidth" value="800"></label>
-        <label style="flex:1; display:flex; flex-direction:column;">Color:<input type="color" id="gradientColor" value="#2E3863"></label>
-        <label style="flex:1; display:flex; flex-direction:column;">Padd. X:<input id="paddingX" type="number" value="60"></label>
-        <label style="flex:1; display:flex; flex-direction:column;">Padd. Y:<input id="paddingY" type="number" value="0"></label>
+      <div style="display:flex; width:100%; flex-direction:column; margin-top:12px;">
+        <label id="labelTextSub" style="margin:0 0 4px;">Categoría:</label>
+        <input type="text" id="textSub" value="ACTUALIDAD" style="width:100%;" autocomplete="off">
       </div>
 
-      <div style="display:flex; gap:8px; margin-top:10px;">
-        <button type="button" id="toggleGradient" class="active" onclick="toggleStyle('toggleGradient')" style="flex:1; padding:7px; font-size:13px;">
-          <i class="fa-solid fa-layer-group"></i> Degradado
-        </button>
-        <button type="button" id="toggleText" class="active" onclick="toggleStyle('toggleText')" style="flex:1; padding:7px; font-size:13px;">
-          <i class="fa-solid fa-font"></i> Texto
-        </button>
+      <div style="display:flex; width:100%; flex-direction:column; margin-top:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="margin:0;">Título:</label>
+          <div id="classic-main-style" style="margin-left:auto; display:none; align-items:center; gap:8px;">
+            <button type="button" id="mainBold" class="active">B</button>
+            <button type="button" id="mainItalic" class="active">I</button>
+            <input type="number" id="fontSizeMain" value="73" style="width:86px;">
+          </div>
+        </div>
+        <input type="text" id="textMain" placeholder="Texto principal" style="width:100%; margin-top:4px;" autocomplete="off">
+      </div>
+
+      <div id="classic-sub-wrap" style="display:none; flex-direction:column; margin-top:10px; width:100%;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label style="margin:0;">Texto 2 (estilo):</label>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+            <button type="button" id="subBold">B</button>
+            <button type="button" id="subItalic">I</button>
+            <input type="number" id="fontSizeSub" value="35" style="width:86px;" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+      <div id="classic-layout-controls" style="display:none;">
+        <div class="form-row" style="margin-top:12px; gap:10px;">
+          <label style="flex:1; display:flex; flex-direction:column;">Gap:<input type="number" id="gap" value="40"></label>
+          <label style="flex:1; display:flex; flex-direction:column;">Width:<input type="number" id="blockWidth" value="800"></label>
+          <label style="flex:1; display:flex; flex-direction:column;">Color:<input type="color" id="gradientColor" value="#2E3863"></label>
+          <label style="flex:1; display:flex; flex-direction:column;">Padd. X:<input id="paddingX" type="number" value="60"></label>
+          <label style="flex:1; display:flex; flex-direction:column;">Padd. Y:<input id="paddingY" type="number" value="0"></label>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button type="button" id="toggleGradient" class="active" onclick="toggleStyle('toggleGradient')" style="flex:1; padding:7px; font-size:13px;">
+            <i class="fa-solid fa-layer-group"></i> Degradado
+          </button>
+          <button type="button" id="toggleText" class="active" onclick="toggleStyle('toggleText')" style="flex:1; padding:7px; font-size:13px;">
+            <i class="fa-solid fa-font"></i> Texto
+          </button>
+        </div>
+      </div>
+
+      <div id="custom-color-controls" style="display:none; margin-top:14px;">
+        <label style="display:block; margin-bottom:6px; font-weight:600;">Colores del panel:</label>
+        <div class="form-row" style="gap:10px;">
+          <label style="flex:1; display:flex; flex-direction:column; gap:4px;">Fondo:<input type="color" id="customBg"     value="#1D2A4A"></label>
+          <label style="flex:1; display:flex; flex-direction:column; gap:4px;">Acento:<input type="color" id="customAccent" value="#E8C84A"></label>
+          <label style="flex:1; display:flex; flex-direction:column; gap:4px;">Etiqueta:<input type="color" id="customLabel"  value="#7B9ED9"></label>
+        </div>
       </div>
 
     </div>
@@ -1199,7 +1253,7 @@ canvas {
     
     <div class="canvas-card">
       <h2>Vista previa portada</h2>
-      <canvas id="canvas" width="1200" height="800"></canvas>
+      <canvas id="canvas" width="1280" height="720"></canvas>
     </div>
   </div>
 </div>
@@ -1276,6 +1330,14 @@ canvas {
 const STORAGE_KEY = 'atepsa_editor_v1';
 let saveTimeout = null;
 let imageDataUrl = null;
+let currentCoverTemplate = 'split-actualidad';
+
+const coverPresets = {
+  'split-actualidad':   { bg: '#1D2A4A', accent: '#E8C84A', labelColor: '#7B9ED9', label: 'ACTUALIDAD'   },
+  'split-convocatoria': { bg: '#1A3D2A', accent: '#4CAF50', labelColor: '#81C784', label: 'CONVOCATORIA' },
+  'split-urgente':      { bg: '#7A0000', accent: '#FF4444', labelColor: '#FF8080', label: 'URGENTE'       },
+  'split-comunicado':   { bg: '#2D1B4E', accent: '#A66EEF', labelColor: '#C4A0FF', label: 'COMUNICADO'   },
+};
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -2936,6 +2998,7 @@ function saveState() {
       blocks,
       downloadItems,
       canvas: {
+        coverTemplate: currentCoverTemplate,
         textMain:     document.getElementById('textMain').value,
         textSub:      document.getElementById('textSub').value,
         fontSizeMain: document.getElementById('fontSizeMain').value,
@@ -2951,6 +3014,9 @@ function saveState() {
         subItalic:      document.getElementById('subItalic').classList.contains('active'),
         toggleGradient: document.getElementById('toggleGradient').classList.contains('active'),
         toggleText:     document.getElementById('toggleText').classList.contains('active'),
+        customBg:      document.getElementById('customBg').value,
+        customAccent:  document.getElementById('customAccent').value,
+        customLabel:   document.getElementById('customLabel').value,
       },
       canvasImage: imageDataUrl
     };
@@ -2986,6 +3052,10 @@ function loadState() {
         .forEach(id => { if (c[id] !== undefined) document.getElementById(id).value = c[id]; });
       ['mainBold','mainItalic','subBold','subItalic','toggleGradient','toggleText']
         .forEach(id => { document.getElementById(id).classList.toggle('active', !!c[id]); });
+      if (c.customBg     !== undefined) document.getElementById('customBg').value     = c.customBg;
+      if (c.customAccent !== undefined) document.getElementById('customAccent').value  = c.customAccent;
+      if (c.customLabel  !== undefined) document.getElementById('customLabel').value   = c.customLabel;
+      if (c.coverTemplate) setTemplate(c.coverTemplate, true);
     }
 
     if (s.canvasImage) {
@@ -3043,6 +3113,9 @@ function resetState() {
   document.getElementById('subItalic').classList.remove('active');
   document.getElementById('toggleGradient').classList.add('active');
   document.getElementById('toggleText').classList.add('active');
+  document.getElementById('customBg').value     = '#1D2A4A';
+  document.getElementById('customAccent').value = '#E8C84A';
+  document.getElementById('customLabel').value  = '#7B9ED9';
 
   const dz = document.getElementById('imageDropZone');
   if (dz) {
@@ -3054,7 +3127,7 @@ function resetState() {
   renderBlocks();
   renderDownloadItems();
   updatePreview();
-  render();
+  setTemplate('split-actualidad', true);
   showFeedback('Editor limpiado. Nueva nota lista.', 'success', 2500);
 }
 
@@ -3104,6 +3177,140 @@ function wrapTextGetLines(ctx, text, maxWidth) {
 
 
 function render() {
+  const tpl = currentCoverTemplate;
+  if (tpl === 'classic') {
+    renderClassic();
+  } else if (tpl === 'custom') {
+    renderCustom();
+  } else {
+    renderSplit(coverPresets[tpl] || coverPresets['split-actualidad']);
+  }
+}
+
+function setTemplate(tpl, skipAutoFill) {
+  const prevTpl = currentCoverTemplate;
+  currentCoverTemplate = tpl;
+
+  document.querySelectorAll('.tpl-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tpl === tpl);
+  });
+
+  if (!skipAutoFill) {
+    const prevPreset = coverPresets[prevTpl];
+    const newPreset  = coverPresets[tpl];
+    const textSubEl  = document.getElementById('textSub');
+    if (newPreset && (!textSubEl.value || (prevPreset && textSubEl.value === prevPreset.label))) {
+      textSubEl.value = newPreset.label;
+    }
+  }
+
+  const isClassicLike = (tpl === 'classic' || tpl === 'custom');
+  const isCustom      = (tpl === 'custom');
+
+  document.getElementById('labelTextSub').textContent               = isClassicLike ? 'Texto 2:'   : 'Categoría:';
+  document.getElementById('classic-main-style').style.display       = isClassicLike ? 'flex'        : 'none';
+  document.getElementById('classic-sub-wrap').style.display         = isClassicLike ? 'flex'        : 'none';
+  document.getElementById('classic-layout-controls').style.display  = isClassicLike ? 'block'       : 'none';
+  document.getElementById('custom-color-controls').style.display    = isCustom      ? 'block'       : 'none';
+
+  render();
+  saveState();
+}
+
+function fitTitle(ctx, text, maxWidth, startSize, maxLines) {
+  let size = startSize;
+  while (size >= 28) {
+    ctx.font = `bold ${size}px Georgia, serif`;
+    const info = wrapTextGetLines(ctx, text, maxWidth);
+    if (info.lines.length <= maxLines) return { size, ...info };
+    size -= 4;
+  }
+  ctx.font = `bold 28px Georgia, serif`;
+  return { size: 28, ...wrapTextGetLines(ctx, text, maxWidth) };
+}
+
+function renderSplit(preset) {
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const splitX = Math.round(W * 0.42);
+
+  // Panel izquierdo
+  ctx.fillStyle = preset.bg;
+  ctx.fillRect(0, 0, splitX, H);
+
+  // Panel derecho (imagen)
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(splitX, 0, W - splitX, H);
+  ctx.clip();
+  if (img) {
+    const panelW = W - splitX;
+    const scale  = Math.max(panelW / img.width, H / img.height);
+    const drawW  = img.width  * scale;
+    const drawH  = img.height * scale;
+    ctx.drawImage(img, splitX + (panelW - drawW) / 2, (H - drawH) / 2, drawW, drawH);
+  } else {
+    ctx.fillStyle = '#1a1a2a';
+    ctx.fillRect(splitX, 0, W - splitX, H);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.font = '20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Cargá la imagen del documento', splitX + (W - splitX) / 2, H / 2);
+    ctx.textAlign = 'left';
+  }
+  ctx.restore();
+
+  // Línea de acento vertical
+  ctx.fillStyle = preset.accent;
+  ctx.fillRect(splitX - 5, 0, 5, H);
+
+  // Contenido panel izquierdo
+  const padL  = 50;
+  const textW = splitX - padL - 28;
+
+  // Línea de acento superior
+  ctx.fillStyle = preset.accent;
+  ctx.fillRect(padL, 46, 48, 5);
+
+  // Etiqueta de categoría
+  const catText = (document.getElementById('textSub').value || preset.label).toUpperCase();
+  ctx.fillStyle = preset.labelColor;
+  ctx.font = 'bold 21px Roboto, Arial, sans-serif';
+  ctx.fillText(catText, padL, 90);
+
+  // Título principal (auto-ajuste de tamaño)
+  const titleText = document.getElementById('textMain').value || '';
+  ctx.fillStyle = '#FFFFFF';
+  const { size: ts, lines: tLines } = fitTitle(ctx, titleText, textW, 64, 5);
+  const tLineH = ts * 1.24;
+  let tY = 134;
+  tLines.forEach(line => { ctx.fillText(line.trim(), padL, tY); tY += tLineH; });
+
+  // ATEPSA wordmark
+  ctx.fillStyle = preset.accent;
+  ctx.font = 'bold 27px Roboto, Arial, sans-serif';
+  ctx.fillText('ATEPSA', padL, H - 42);
+
+  // Barra de acento inferior
+  ctx.fillStyle = preset.accent;
+  ctx.fillRect(padL, H - 26, 85, 4);
+
+  saveState();
+}
+
+function renderCustom() {
+  renderSplit({
+    bg:         document.getElementById('customBg').value,
+    accent:     document.getElementById('customAccent').value,
+    labelColor: document.getElementById('customLabel').value,
+    label:      document.getElementById('textSub').value || 'ACTUALIDAD',
+  });
+}
+
+function renderClassic() {
   if (!img) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     return;
@@ -3112,30 +3319,23 @@ function render() {
   const W = canvas.width;
   const H = canvas.height;
 
-  const paddingX = parseInt(document.getElementById("paddingX").value);
-const paddingY = parseInt(document.getElementById("paddingY").value);
-
+  const paddingX   = parseInt(document.getElementById("paddingX").value);
+  const paddingY   = parseInt(document.getElementById("paddingY").value);
   const blockWidth = parseInt(document.getElementById("blockWidth").value);
-  const gap = parseInt(document.getElementById("gap").value);
-
-
-  const sizeMain = parseInt(document.getElementById("fontSizeMain").value);
-  const sizeSub = parseInt(document.getElementById("fontSizeSub").value);
-
-  const styleMain = buildFontStyle("mainBold", "mainItalic");
-  const styleSub = buildFontStyle("subBold", "subItalic");
-
-  const main = document.getElementById("textMain").value;
-  const sub = document.getElementById("textSub").value;
+  const gap        = parseInt(document.getElementById("gap").value);
+  const sizeMain   = parseInt(document.getElementById("fontSizeMain").value);
+  const sizeSub    = parseInt(document.getElementById("fontSizeSub").value);
+  const styleMain  = buildFontStyle("mainBold", "mainItalic");
+  const styleSub   = buildFontStyle("subBold", "subItalic");
+  const main       = document.getElementById("textMain").value;
+  const sub        = document.getElementById("textSub").value;
 
   ctx.clearRect(0, 0, W, H);
 
-  // blur background
   ctx.filter = "blur(30px)";
   const scaleBg = Math.max(W / img.width, H / img.height);
   ctx.drawImage(img, 0, 0, img.width * scaleBg, img.height * scaleBg);
 
-  // main image
   ctx.filter = "none";
   const scale = Math.min(W / img.width, H / img.height);
   const ix = (W - img.width * scale) / 2;
@@ -3145,10 +3345,9 @@ const paddingY = parseInt(document.getElementById("paddingY").value);
   const showGradient = document.getElementById('toggleGradient').classList.contains('active');
   const showText     = document.getElementById('toggleText').classList.contains('active');
 
-  // degradado opcional
   if (showGradient) {
     const color = document.getElementById("gradientColor").value;
-    const grad = ctx.createLinearGradient(0, H, 0, 0);
+    const grad  = ctx.createLinearGradient(0, H, 0, 0);
     grad.addColorStop(0,   color + "E0");
     grad.addColorStop(0.4, color + "80");
     grad.addColorStop(1,   color + "00");
@@ -3156,25 +3355,24 @@ const paddingY = parseInt(document.getElementById("paddingY").value);
     ctx.fillRect(0, 0, W, H);
   }
 
-  // texto opcional
   if (showText) {
     ctx.fillStyle = "white";
     ctx.font = `${styleMain} ${sizeMain}px Georgia`;
     const titleInfo = wrapTextGetLines(ctx, main, blockWidth);
     ctx.font = `${styleSub} ${sizeSub}px Roboto`;
-    const subInfo = wrapTextGetLines(ctx, sub, blockWidth);
+    const subInfo   = wrapTextGetLines(ctx, sub, blockWidth);
 
     const totalTextHeight = subInfo.height + gap + titleInfo.height;
     let baseY = H - paddingY - totalTextHeight;
 
     ctx.font = `${styleSub} ${sizeSub}px Roboto`;
-    let lineHeightSub = sizeSub * 1.2;
+    const lineHeightSub = sizeSub * 1.2;
     subInfo.lines.forEach(line => { ctx.fillText(line, paddingX, baseY); baseY += lineHeightSub; });
 
     baseY += gap;
 
     ctx.font = `${styleMain} ${sizeMain}px Georgia`;
-    let lineHeightMain = sizeMain * 1.2;
+    const lineHeightMain = sizeMain * 1.2;
     titleInfo.lines.forEach(line => { ctx.fillText(line, paddingX, baseY); baseY += lineHeightMain; });
   }
 
@@ -3266,7 +3464,7 @@ document.getElementById("exportBtn").onclick = () => {
   }
   try {
     const link = document.createElement("a");
-    link.download = "portada_1200x800.png";
+    link.download = "portada_1280x720.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
     showFeedback("Portada exportada correctamente", 'success', 2500);

@@ -897,6 +897,12 @@ canvas {
   background: var(--bg-alt); color: var(--text-main);
 }
 .cv-label-row .cv-size { margin-left: 4px; }
+.cv-size-def {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  white-space: nowrap;
+}
 .cv-custom-summary {
   cursor: pointer;
   font-size: 13px;
@@ -1203,8 +1209,9 @@ canvas {
       <div class="cv-section">
         <div class="cv-label-row">
           <div class="cv-label" style="margin:0;">Eyebrow</div>
-          <input type="number" class="cv-size" id="cvEyebrowSize" min="8" max="48" value="15"
+          <input type="number" class="cv-size" id="cvEyebrowSize" min="8" max="48" value="17"
                  title="Tama&#241;o" oninput="setCvState('eyebrowSize', +this.value)">
+          <span class="cv-size-def">def. 17</span>
         </div>
         <input type="text" id="cvEyebrow" value="ACTUALIDAD" autocomplete="off"
                oninput="setCvState('eyebrow', this.value)">
@@ -1213,8 +1220,9 @@ canvas {
       <div class="cv-section">
         <div class="cv-label-row">
           <div class="cv-label" style="margin:0;">T&#237;tulo</div>
-          <input type="number" class="cv-size" id="cvTitleSize" min="20" max="110" value="52"
+          <input type="number" class="cv-size" id="cvTitleSize" min="20" max="110" value="70"
                  title="Tama&#241;o" oninput="setCvState('titleSize', +this.value)">
+          <span class="cv-size-def">def. 70</span>
         </div>
         <select id="cvTitleFont" style="margin-bottom:8px;" onchange="setCvState('titleFont', this.value)">
           <option value="source" selected>Source Sans (actual)</option>
@@ -1233,8 +1241,9 @@ canvas {
       <div class="cv-section">
         <div class="cv-label-row">
           <div class="cv-label" style="margin:0;">Pie</div>
-          <input type="number" class="cv-size" id="cvFooterSize" min="8" max="40" value="14"
+          <input type="number" class="cv-size" id="cvFooterSize" min="8" max="40" value="17"
                  title="Tama&#241;o" oninput="setCvState('footerSize', +this.value)">
+          <span class="cv-size-def">def. 17</span>
         </div>
         <input type="text" id="cvFooter" autocomplete="off"
                oninput="setCvState('footer', this.value)">
@@ -1243,8 +1252,9 @@ canvas {
       <div class="cv-section">
         <div class="cv-label-row">
           <div class="cv-label" style="margin:0;">P&#225;ginas del PDF</div>
-          <input type="number" class="cv-size" id="cvPagesSize" min="8" max="40" value="13"
+          <input type="number" class="cv-size" id="cvPagesSize" min="8" max="40" value="17"
                  title="Tama&#241;o" oninput="setCvState('pagesSize', +this.value)">
+          <span class="cv-size-def">def. 17</span>
           <label class="cv-check">
             <input type="checkbox" id="cvPagesShow" checked onchange="setCvState('pagesShow', this.checked)">
             Mostrar
@@ -1437,10 +1447,10 @@ const COVER_DEFAULTS = {
   eyebrow:      'ACTUALIDAD',
   title:        'Título de ejemplo',
   footer:       '',
-  eyebrowSize:  15,
-  titleSize:    52,
-  footerSize:   14,
-  pagesSize:    13,
+  eyebrowSize:  17,
+  titleSize:    70,
+  footerSize:   17,
+  pagesSize:    17,
   pagesShow:    true,
   pagesCount:   1,
   sheetsGraphic: 1,
